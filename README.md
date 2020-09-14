@@ -1,22 +1,32 @@
-# flowAcylenderDLR
-code for active flow control of flow around cynder using Deep Reinforcement Learning 
+# Active flow control of the flow past a cylinder using OpenFOAM and PyTorch
 
-# Abstact
-abstract for prject
+## Overview
+project overview, structure of this repository, a nice eye-catching picture or animation, scientific goals (you may use the task list as reference) and progress
 
-# Visulazation of Results
-vislualization of result in order to understand motive of project
+## Dependencies
+- packages/libraries, e.g. Docker
 
-# packages
-which packeges with virsions are necessary to run the code in the system 
+## Getting started
 
-# Code Info
-Information about code and how to run it.
+To create the Docker container containing *OpenFOAM* and *PyTorch*, execute the *create_openfoam_container.sh* script:
 
-# project description
-detailed description of project including equation and theory with intuition
+```
+./create_openfoam_container.sh
+```
 
-# Conclusion
-conclusion of project and results with future scope
+Once the environment is created, the typical commands to run a test case look as follows:
 
-# References
+```
+# start the container and log in
+./start_openfoam.sh
+# now we are executing commands inside the container
+cd test_cases
+# the run folder is ignored from the version control system
+mkdir run
+# create a copy of one of the test cases and run it
+cp -r cylinder2D_base run/
+cd cylinder2D_base
+./Allrun
+```
+
+## References
