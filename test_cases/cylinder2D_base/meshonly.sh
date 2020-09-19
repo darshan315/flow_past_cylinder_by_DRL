@@ -1,4 +1,4 @@
-#!bash/bin/sh
+#!/bin/sh
 blockMesh
 snappyHexMesh -overwrite
 extrudeMesh

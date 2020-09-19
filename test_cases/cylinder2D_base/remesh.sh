@@ -1,4 +1,4 @@
-#!bash/bin/sh
+#!/bin/sh
 rm -r constant/polyMesh
 blockMesh
 snappyHexMesh -overwrite
