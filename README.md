@@ -4,7 +4,7 @@
 project overview, structure of this repository, a nice eye-catching picture or animation, scientific goals (you may use the task list as reference) and progress
 
 ## Dependencies
-- packages/libraries, e.g. Docker
+- packages/libraries, e.g. Docker, paraview(for visualisation)
 
 ## Getting started
 
@@ -45,15 +45,19 @@ This argument is able to change the cell numbers in blockMesh file. The line for
 
 ```hex (0 1 2 3 4 5 6 7) (300 50 1) simpleGrading (1 1 1)```
 
-In above line (300 50 1) represents the cell numbers in x, y and z direction respectively.  
-To change this values shell script should be executed as follows with the following values:
+In above line (300 50 1) represents the cell numbers in x, y and z direction respectively. As the setup is 2D, there will be only 1 cell in z direction.
+cell numbers in y-direction can be calculated by the equation shown below. Making value in y-direction dependent to value in x-direction will also prevent the conflict between snappyHexMesh and blockMeshDict. 
 
-```$ ./mesh bmcell 350 60 2```
+$blockX=blocksX*(lengthY/lengthX)$
+
+Hence the value for x axis need to change only and value in y-direction will be calculated by this equation. To change this values shell script should be executed as follows with the following values:
+
+```$ ./mesh bmcell 200```
 
 This command will change the line of ```blockMesh``` as shown below and all mesh files like ```blockMesh``` and 
 ```snappyHexMesh``` will be executed with the change, so one does not have to execute them separately.
 
-```hex (0 1 2 3 4 5 6 7) (350 60 2) simpleGrading (1 1 1)```
+```hex (0 1 2 3 4 5 6 7) (200 37 2) simpleGrading (1 1 1)```
 
 + Argument 2 : bmgrad
 
@@ -68,22 +72,22 @@ In above line simpleGrading (1 1 1) values can be changed with the following exe
 
 The output will change the attributes in line of ```blockMesh``` as shown below and as explained above all mesh files will be executed consequently.
 
-```hex (0 1 2 3 4 5 6 7) (300 50 1) simpleGrading (2 2 2)```
+```hex (0 1 2 3 4 5 6 7) (200 37 1) simpleGrading (2 2 2)```
 
 + Argument 3 : bmboth
 
 This argument includes combination of both argument 1 and argument 2. This argument is able to change both cell number values and simpleGrading values.
 It can be executed as follows :
  
-```$ ./mesh bmgrad 350 60 10 2 2 2```
+```$ ./mesh bmgrad 350 2 2 2```
 
-In this first 3 arguments are represent values of cell number and other 3 represent the values of simpleGrading.
+In this first argument of value represents values of cell number in x direction and other 3 represent the values of simpleGrading.
 It will change code -
 
-From :```hex (0 1 2 3 4 5 6 7) (300 50 1) simpleGrading (1 1 1)```
+From :```hex (0 1 2 3 4 5 6 7) (200 37 1) simpleGrading (1 1 1)```
 
 To:
-```hex (0 1 2 3 4 5 6 7) (350 60 10) simpleGrading (2 2 2)```
+```hex (0 1 2 3 4 5 6 7) (350 65 10) simpleGrading (2 2 2)```
 
 Argument 4 : spsurf
 
@@ -117,11 +121,11 @@ Enter the number of choise : 1
 2) blockMesh cell numbers 
 3) Both
 Enter choise : 1
-Enter the cell numbers: 
+Enter the cell number(x): 
 
-val1 val2 val3
+val
 
-350 60 10
+250
 
 Running Mesh
 ```
