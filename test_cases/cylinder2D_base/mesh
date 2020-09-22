@@ -16,6 +16,7 @@ case $1 in
 		if [ $# -eq 1 ]
 		then
 			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
 		else
 			sed -i "s/simpleGrading.*/simpleGrading ($2 $3 $4)/g" system/blockMeshDict
 			
@@ -28,6 +29,7 @@ case $1 in
 		if [ $# -eq 1 ]
 		then
 			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
 		else		
 			sed -i "s/hex (0 1 2 3 4 5 6 7) [^)]*)/hex (0 1 2 3 4 5 6 7) ($2 $3 $4)/g" system/blockMeshDict
 			
@@ -41,6 +43,7 @@ case $1 in
 		if [ $# -eq 1 ]
 		then
 			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
 		else		
 			sed -i "s/hex (0 1 2 3 4 5 6 7).*/hex (0 1 2 3 4 5 6 7) ($2 $3 $4) simpleGrading ($5 $6 $7)/g" system/blockMeshDict
 			
@@ -54,6 +57,7 @@ case $1 in
 		if [ $# -eq 1 ]
 		then
 			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
 		else		
 			sed -i "s/\blevel\b.*/level ($2 $3)/g" system/snappyHexMeshDict
 			
@@ -132,7 +136,8 @@ case $1 in
 				fi
 				
 			else
-				exit 1
-
+				blockMesh
+				snappyHexMesh -overwrite
+				extrudeMesh
 			fi
 esac
