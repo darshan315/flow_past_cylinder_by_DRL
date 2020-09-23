@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+python3 coef.py
+
+gnuplot <<- EOF
+set xlabel "Time-steps"
+set ylabel "Cd"
+set title "Mesh study(Cd)"   
+set term png
+set output "Cd.png"
+plot 'filtered_data.dat' u 1:2 w l title "Cd"
+EOF
+

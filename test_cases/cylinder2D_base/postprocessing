@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+python3 coef.py
+
+gnuplot <<- EOF
+set xlabel "Label"
+set ylabel "Label2"
+set title "Graph title"   
+set term png
+set output "postProcessing/${FILE}.png"
+plot 'output.dat' u 1:2 w l
+EOF
+S
