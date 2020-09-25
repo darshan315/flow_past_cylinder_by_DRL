@@ -8,6 +8,8 @@ project overview, structure of this repository, a nice eye-catching picture or a
 
 ## Getting started
 
+### Running simulations with OpenFOAM
+
 To create the Docker container containing *OpenFOAM* and *PyTorch*, execute the *create_openfoam_container.sh* script:
 
 ```
@@ -28,5 +30,27 @@ cp -r cylinder2D_base run/
 cd cylinder2D_base
 ./Allrun
 ```
+
+### Starting Jupyterlab
+
+To create the Jupyterlab environment, run:
+
+```
+./create_jupyter_container.sh
+```
+
+The output of docker container ls --all should contain an entry similar to the following line:
+
+```
+ff2822e10fd2    andreweiner/juypter_darshan:v1  "/bin/bash" 7 seconds ago   Up 6 seconds    0.0.0.0:8000->8000/tcp, 8888/tcp jupyter-v1
+```
+
+Once the container has been created successfully, the environment can be accessed using the start_notebooks.sh script:
+
+```
+./start_notebooks.sh
+```
+
+A url with the syntax http://127.0.0.1:8000/?token=... will be displayed in the console. By opening the url in a web browser of your choice, the Jupyter notebooks can be accessed and executed.
 
 ## References
