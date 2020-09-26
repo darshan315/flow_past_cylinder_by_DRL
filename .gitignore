@@ -1,2 +1,7 @@
 .bash_history
 test_cases/run
+.cache
+.ipython
+.jupyter
+.local
+
