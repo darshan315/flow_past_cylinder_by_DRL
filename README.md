@@ -54,6 +54,27 @@ Once the container has been created successfully, the environment can be accesse
 A url with the syntax http://127.0.0.1:8000/?token=... will be displayed in the console. By opening the url in a web browser of your choice, the Jupyter notebooks can be accessed and executed.
 
 =======
+### Calculate Reynolds number and Drag/Lift coefficient
+The mathematical equation of Reynolds number can be formulated as follows :
+
+![](https://latex.codecogs.com/svg.latex?Re&space;=&space;\frac{U_\infty&space;L}{\nu})
+
+In OpenFoam, to set the Reynolds number or to calculate values of U, L, v, are set accordingly. 
+where U, L, v denote as free flow velocity, Length and kinematic viscosity respectively.
+ Value of velocity can be found in 0.org/U and value of kinematic viscosity can be found in 
+ constant/transportProperties and Length attribute can be set while meshing in system/blockMesh. 
+
+Drag coefficient and Lift coefficient can be calculate by given equations:
+
+![](https://latex.codecogs.com/svg.latex?{\displaystyle&space;C_{\mathrm&space;{d}&space;}={\dfrac&space;{2F_{\mathrm&space;{d}&space;}}{\rho&space;u^{2}A}}})
+
+
+![](https://latex.codecogs.com/svg.latex?{\displaystyle&space;C_{\mathrm&space;{L}&space;}={\frac&space;{2L}{\rho&space;u^{2}S}}}) 
+
+Where,
+ Cd = drag coefficient, Fd = drag force, rho =  density, u = velocity, A = cross section area, S = surface area.
+ 
+In OpenFoam these values are calculated and can be found in postProcessing/forces/0/coefficient.dat file. These value can be also ploted by coef.py given in Repo. Coef.py plots the values only after 3s as initial values are to large.
 
 ## Interactive mesh file:
 In This Repository interactive mesh.sh file can be found. In this file interpreter is set to ```!/usr/bin/bash``` which is 
