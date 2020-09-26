@@ -73,7 +73,8 @@ This argument is able to change the cell numbers in blockMesh file. The line for
 In above line (300 50 1) represents the cell numbers in x, y and z direction respectively. As the setup is 2D, there will be only 1 cell in z direction.
 cell numbers in y-direction can be calculated by the equation shown below. Making value in y-direction dependent to value in x-direction will also prevent the conflict between snappyHexMesh and blockMeshDict. 
 
-$blockX=blocksX*(lengthY/lengthX)$
+
+![](https://latex.codecogs.com/svg.latex?blockX=blocksX&space;\times&space;\frac{lengthY}{lengthX})
 
 Hence the value for x axis need to change only and value in y-direction will be calculated by this equation. To change this values shell script should be executed as follows with the following values:
 
