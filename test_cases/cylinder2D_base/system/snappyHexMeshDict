@@ -52,7 +52,7 @@ castellatedMeshControls
     {
         cylinder
         {
-            level (2 2);
+            level (4 4);
             patchInfo
             {
                 type        patch;
@@ -67,7 +67,7 @@ castellatedMeshControls
             levels      ((2 2));
         }*/
     };
-    locationInMesh (1.02 0.15 0.008);
+    locationInMesh (1.02 0.15 0.000000001);
 }
 
 

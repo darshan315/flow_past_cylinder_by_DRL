@@ -4,4 +4,5 @@ test_cases/run
 .ipython
 .jupyter
 .local
-
+notebooks/plot_data
+notebooks/show_package_versions.ipynb
