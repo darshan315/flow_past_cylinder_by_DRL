@@ -6,3 +6,4 @@ test_cases/run
 .local
 notebooks/plot_data
 notebooks/show_package_versions.ipynb
+notebooks/.ipynb_checkpoints/ploting_mesh_dependency-checkpoint.ipynb

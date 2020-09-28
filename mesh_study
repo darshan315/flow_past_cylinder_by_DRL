@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -a mesh_size
-mesh_size=( 50, 100, 200, 300, 400 )
+mesh_size=( 50 100 200 300 400 )
 
 ##################################################################
 # make run dir if not present
@@ -36,7 +36,7 @@ fi
 
 for i in "${mesh_size[@]}"
 do
-	cd ./test_cases/run/base/
+	cd ./test_cases/run/cylinder2D_base/
 	echo -e "******************************************************************"
 	echo -e "\nMesh size = $i\n"
 	echo -e "******************************************************************"
@@ -44,7 +44,7 @@ do
 	./mesh bmcell $i
 	./solveronly
 	cd .. ; cd .. ; cd ..
-	cp -r test_cases/run/base/system notebooks/plot_data/cases/case_$j
-	cp -r test_cases/run/base/postProcessing notebooks/plot_data/cases/case_$j
+	cp -r test_cases/run/cylinder2D_base/system notebooks/plot_data/cases/case_$j
+	cp -r test_cases/run/cylinder2D_base/postProcessing notebooks/plot_data/cases/case_$j
 	let "j++"
 done
