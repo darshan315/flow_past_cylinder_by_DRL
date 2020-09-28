@@ -1,0 +1,50 @@
+#!/bin/bash
+
+declare -a mesh_size
+mesh_size=( 50, 100, 200, 300, 400 )
+
+##################################################################
+# make run dir if not present
+if [[ -d "test_cases/run" ]]
+then
+    :
+else 
+	mkdir test_cases/run
+fi
+
+####################################################################
+# copy base_case and in run directory it modified and run and copied
+####################################################################
+
+cp -r test_cases/cylinder2D_base test_cases/run/
+
+
+declare -i j
+j=1
+len=${#mesh_size[@]}
+
+if [[ -d "notebooks/plot_data/cases/case_1" ]]
+then
+	:
+else 
+	mkdir notebooks/plot_data
+	mkdir notebooks/plot_data/cases
+	for ((k=1;k<=$len;k++)); do
+    mkdir notebooks/plot_data/cases/case_$k
+	done
+fi
+
+for i in "${mesh_size[@]}"
+do
+	cd ./test_cases/run/base/
+	echo -e "******************************************************************"
+	echo -e "\nMesh size = $i\n"
+	echo -e "******************************************************************"
+	./Allclean
+	./mesh bmcell $i
+	./solveronly
+	cd .. ; cd .. ; cd ..
+	cp -r test_cases/run/base/system notebooks/plot_data/cases/case_$j
+	cp -r test_cases/run/base/postProcessing notebooks/plot_data/cases/case_$j
+	let "j++"
+done
