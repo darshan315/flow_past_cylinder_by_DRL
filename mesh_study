@@ -5,12 +5,8 @@ mesh_size=( 50 100 200 300 400 )
 
 ##################################################################
 # make run dir if not present
-if [[ -d "test_cases/run" ]]
-then
-    :
-else 
-	mkdir test_cases/run
-fi
+
+mkdir -p test_cases/run
 
 ####################################################################
 # copy base_case and in run directory it modified and run and copied
@@ -18,22 +14,14 @@ fi
 
 cp -r test_cases/cylinder2D_base test_cases/run/
 
-
 declare -i j
 j=1
 len=${#mesh_size[@]}
-
-if [[ -d "notebooks/plot_data/cases/case_1" ]]
-then
-	:
-else 
-	mkdir notebooks/plot_data
-	mkdir notebooks/plot_data/cases
-	for ((k=1;k<=$len;k++)); do
-    mkdir notebooks/plot_data/cases/case_$k
-	done
-fi
-
+ 
+for ((k=1;k<=$len;k++)); do
+    mkdir -p notebooks/plot_data/cases/case_$k
+done
+	
 for i in "${mesh_size[@]}"
 do
 	cd ./test_cases/run/cylinder2D_base/
