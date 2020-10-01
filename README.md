@@ -53,7 +53,7 @@ Once the container has been created successfully, the environment can be accesse
 
 A url with the syntax http://127.0.0.1:8000/?token=... will be displayed in the console. By opening the url in a web browser of your choice, the Jupyter notebooks can be accessed and executed.
 
-=======
+
 ### Calculate Reynolds number and Drag/Lift coefficient
 The mathematical equation of Reynolds number can be formulated as follows :
 
@@ -191,6 +191,12 @@ val1 val2
 3 3
 
 Running Mesh
+```
+## Mesh Study
+
+In Repository mesh_study.sh file can be found for Automation of mesh study. This bash script refines mesh only in blockMesh. In accordance of need, array(mesh refinement cell sizes) can be changed. This bash script creates different directories having different mesh settings, which can be used later for post processing.
+
+Use : ```./mesh_study.sh```
 
 ## References
 
