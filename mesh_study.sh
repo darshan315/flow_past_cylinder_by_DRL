@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -a mesh_size
-mesh_size=( 50 100 200 300 400 )
+mesh_size=( 100 200 400 )
 	
 for i in "${mesh_size[@]}"
 do
