@@ -20,9 +20,11 @@ case $1 in
 		else
 			sed -i "s/simpleGrading.*/simpleGrading ($2 $3 $4)/g" system/blockMeshDict
 			
-			blockMesh
-			snappyHexMesh -overwrite
-			extrudeMesh
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
 		fi
 		;;
 	bmcell )
@@ -32,10 +34,11 @@ case $1 in
 			exit 1
 		else		
 			sed -i "0,/blocksX/ s/blocksX.*/blocksX $2;/g" system/blockMeshDict
-			
-			blockMesh
-			snappyHexMesh -overwrite
-			extrudeMesh
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
 
 		fi
 		;;
@@ -48,9 +51,11 @@ case $1 in
 			sed -i "0,/blocksX/ s/blocksX.*/blocksX $2;/g" system/blockMeshDict		
 			sed -i "s/simpleGrading.*/simpleGrading ($3 $4 $5)/g" system/blockMeshDict
 			
-			blockMesh
-			snappyHexMesh -overwrite
-			extrudeMesh
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
 
 		fi
 		;;
@@ -62,9 +67,11 @@ case $1 in
 		else		
 			sed -i "s/\blevel\b.*/level ($2 $3)/g" system/snappyHexMeshDict
 			
-			blockMesh
-			snappyHexMesh -overwrite
-			extrudeMesh
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
 
 		fi
 		;;
@@ -87,9 +94,11 @@ case $1 in
 							echo -e "this is the values $valuesbm"
 							sed -i "0,/blocksX/ s/blocksX.*/blocksX $valuebm;/g" system/blockMeshDict
 							
-							blockMesh
-							snappyHexMesh -overwrite
-							extrudeMesh
+							echo -e "Meshing..."
+							blockMesh &> log.blockMesh
+							snappyHexMesh -overwrite  &> log.snappyHexMesh
+							extrudeMesh &> log.extrudeMesh
+							echo -e "Mesh generated"
 
 						elif [[ $bmval = [2] ]]
 						then
@@ -98,9 +107,11 @@ case $1 in
 							echo -e "this is the values $valuesbm"
 							sed -i "s/simpleGrading.*/simpleGrading ($valuesbm)/g" system/blockMeshDict
 							
-							blockMesh
-							snappyHexMesh -overwrite
-							extrudeMesh
+							echo -e "Meshing..."
+							blockMesh &> log.blockMesh
+							snappyHexMesh -overwrite  &> log.snappyHexMesh
+							extrudeMesh &> log.extrudeMesh
+							echo -e "Mesh generated"
 
 						elif [[ $bmval = [3] ]]
 						then
@@ -114,9 +125,12 @@ case $1 in
 							echo -e "this is the values $valuesbm"
 							sed -i "s/simpleGrading.*/simpleGrading ($valuesbm)/g" system/blockMeshDict
 							
-							blockMesh
-							snappyHexMesh -overwrite
-							extrudeMesh
+							echo -e "Meshing..."
+							blockMesh &> log.blockMesh
+							snappyHexMesh -overwrite  &> log.snappyHexMesh
+							extrudeMesh &> log.extrudeMesh
+							echo -e "Mesh generated"
+							
 						else
 							exit 1
 						fi
@@ -127,9 +141,11 @@ case $1 in
 					echo -e "this is the values $valuesbm"
 					sed -i "s/\blevel\b.*/level ($valuesbm)/g" system/snappyHexMeshDict
 					
-					blockMesh
-					snappyHexMesh -overwrite
-					extrudeMesh
+					echo -e "Meshing..."
+					blockMesh &> log.blockMesh
+					snappyHexMesh -overwrite  &> log.snappyHexMesh
+					extrudeMesh &> log.extrudeMesh
+					echo -e "Mesh generated"
 
 				else
 					echo Please choose the right choise.
@@ -137,8 +153,10 @@ case $1 in
 				fi
 				
 			else
-				blockMesh
-				snappyHexMesh -overwrite
-				extrudeMesh
+				echo -e "Meshing..."
+				blockMesh &> log.blockMesh
+				snappyHexMesh -overwrite  &> log.snappyHexMesh
+				extrudeMesh &> log.extrudeMesh
+				echo -e "Mesh generated"
 			fi
 esac

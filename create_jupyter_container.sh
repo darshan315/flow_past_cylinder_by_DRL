@@ -1,6 +1,6 @@
 username="$USER"
 user="$(id -u)"
-default_image="andreweiner/juypter_darshan:v1"
+default_image="andreweiner/jupyter_darshan:v1"
 image="${1:-$default_image}"
 default_container_name="jupyter-v1"
 container_name="${2:-$default_container_name}"
