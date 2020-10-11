@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y  \
   python3-pip \
   python3-scipy \
   python3-tqdm \
+  python3-tabulate \
   texlive-latex-extra \
   texlive-fonts-recommended && \
   rm -rf /var/lib/apt/lists/*
