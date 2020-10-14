@@ -33,7 +33,20 @@ boundaryField
         type            zeroGradient;
     }
 
-    "(cylinder|top|bottom)"
+	cylinder
+	{
+		type            exprFixedValue;
+		value           $internalField;
+		
+		z_axis_dir		1.0;
+		amplitude		1.0;
+		frequency		0.6;
+
+        valueExpr      "$amplitude * sin (2 * pi() * $frequency * time()) * (face() ^ vector(0, 0, $z_axis_dir))";
+
+	}
+    
+    "(top|bottom)"
     {
         type            noSlip;
     }
