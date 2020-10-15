@@ -1,0 +1,36 @@
+#!/usr/bin/bash
+
+trap '{ echo "Hey, you pressed Ctrl-C.  Time to quit." ; exit 1; }' INT
+
+
+# cases
+case $1 in 
+	ch_amp )
+		if [ $# -eq 1 ]
+		then
+			echo "No arguments of values supplied. Running default value. Check defaule value in 0.org/U file"
+			exit 1
+		else
+			sed -i "0,/frequency/ s/amplitude.*/amplitude     $2;/g" 0.org/U
+			
+			echo -e "\n amplitude is changed to $2. \n"
+
+		fi
+		;;
+	ch_fq )
+		if [ $# -eq 1 ]
+		then
+			echo "No arguments of values supplied. Running default value. Check defaule value in 0.org/U file"
+			exit 1
+		else		
+			sed -i "0,/frequency/ s/frequency.*/frequency        $2;/g" 0.org/U
+			
+			echo -e "\n amplitude is changed to $2. \n"
+
+		fi
+		;;
+		
+	"" )
+		echo -e "\n No change is implemented \n"
+			
+esac

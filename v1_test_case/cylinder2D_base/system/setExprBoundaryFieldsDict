@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  com                                   |
+|  \\    /   O peration     | Version:  v2006                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,40 +9,27 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volVectorField;
-    arch        "LSB;label=32;scalar=64";
-    location    "0";
-    object      U;
+    class       dictionary;
+    object      setExprBoundaryFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [ 0 1 -1 0 0 0 0 ];
-
-internalField   uniform ( 0 0 0 );
-
-boundaryField
+U_inlet
 {
-    inlet
-    {
-        type            fixedValue;
-        value           uniform (1 0 0);
-    }
+    field   U;
 
-    outlet
-    {
-        type            zeroGradient;
-    }
-
-    "(cylinder|top|bottom)"
-    {
-        type            noSlip;
-    }
-
-    "(front|back)"
-    {
-        type            empty;
-    }
+    expressions
+    (
+        {
+            patch   inlet;
+            target  value;
+            //Um 1.5; - maximum velocity at the center of the channel
+            //H 0.41; - channel height
+            vel { dir (1 0 0); }
+            expression #{ 4*1.5*pos().y()*(0.41-pos().y())/(0.41*0.41)*$[(vector)vel.dir] #};   
+        }
+    );
 }
 
-
 // ************************************************************************* //
+
