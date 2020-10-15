@@ -7,3 +7,6 @@ test_cases/run
 notebooks/plot_data
 notebooks/show_package_versions.ipynb
 notebooks/.ipynb_checkpoints
+.python_history
+v1_test_cases/run
+
