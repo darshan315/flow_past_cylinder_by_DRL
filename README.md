@@ -13,21 +13,21 @@ project overview, structure of this repository, a nice eye-catching picture or a
 To create the Docker container containing *OpenFOAM* and *PyTorch*, execute the *create_openfoam_container.sh* script:
 
 ```
-./create_openfoam_container.sh
+$ ./create_openfoam_container.sh
 ```
 
 Once the environment is created, the typical commands to run a test case look as follows:
 
 ```
 # start the container and log in
-./start_openfoam.sh
+$ ./start_openfoam.sh
 # now we are executing commands inside the container
-cd test_cases
+$ cd test_cases
 # the run folder is ignored from the version control system
-mkdir run
+$ mkdir run
 # create a copy of one of the test cases and run it
-cp -r cylinder2D_base run/
-cd cylinder2D_base
+$ cp -r cylinder2D_base run/
+$ cd cylinder2D_base
 ./Allrun
 ```
 #### Singularity
@@ -35,25 +35,25 @@ Singularity is mostly used as only supported virtualization tool for public clus
 
 To create the image, run:
 
-`ssudo singularity build of2006-py1.6-cpu.sif Singularity.def`
+`$ ssudo singularity build of2006-py1.6-cpu.sif Singularity.def`
 
 With the created image one can open interactive singularity shell by following command :
-`singularity shell of2006-py1.6-cpu.sif`
+`$ singularity shell of2006-py1.6-cpu.sif`
 
 The singularity image contains some simple shell logic to execute commands in a given path. The general syntax is:
 
-`singularity run of2006-py1.6-cpu.sif command [path] [arguments]`
+`$ singularity run of2006-py1.6-cpu.sif command [path] [arguments]`
 
 Test run example :
 
-`singularity run of2006-py1.6-cpu.sif command ./Allrun test_cases/cylinder2D_base/`
+`$ singularity run of2006-py1.6-cpu.sif command ./Allrun test_cases/cylinder2D_base/`
 
 ### Starting Jupyterlab
 
 To create the Jupyterlab environment, run:
 
 ```
-./create_jupyter_container.sh
+$ ./create_jupyter_container.sh
 ```
 
 The output of docker container ls --all should contain an entry similar to the following line:
@@ -65,7 +65,7 @@ ff2822e10fd2    andreweiner/juypter_darshan:v1  "/bin/bash" 7 seconds ago   Up 6
 Once the container has been created successfully, the environment can be accessed using the start_notebooks.sh script:
 
 ```
-./start_notebooks.sh
+$ ./start_notebooks.sh
 ```
 
 A url with the syntax http://127.0.0.1:8000/?token=... will be displayed in the console. By opening the url in a web browser of your choice, the Jupyter notebooks can be accessed and executed.
@@ -213,7 +213,7 @@ Running Mesh
 
 In Repository mesh_study.sh file can be found for Automation of mesh study. This bash script refines mesh only in blockMesh. In accordance of need, array(mesh refinement cell sizes) can be changed. This bash script creates different directories having different mesh settings, which can be used later for post processing.
 
-Use : ```./mesh_study.sh```
+Use : ```$ ./mesh_study.sh```
 
 ## Oscilatory boundary conditions
 
