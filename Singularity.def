@@ -1,0 +1,39 @@
+Bootstrap: docker
+From: andreweiner/of_pytorch:of2006-py1.6-cpu
+  
+%runscript
+
+  CMD="${1:?[Please specify a command; singularity run-help of2006-py1.6-cpu.sif]}"
+
+  # openFOAM environment variables
+  . /usr/lib/openfoam/openfoam2006/etc/bashrc
+
+  if [ "$#" -eq "1" ]; then
+    $CMD
+  elif [ "$#" -eq "2" ]; then
+    cd $2
+    $CMD
+  elif [ "$#" -eq "3" ]; then
+    cd $2
+    $CMD $3
+  else
+    echo "Error: expected exactly one, two, or three arguments."
+  fi
+
+%help
+  Simple Singularity image containing OpenFOAM-v2006
+  and libtorch (PyTorch 1.6). The generic syntax to execute
+  a command with arguments is
+
+  singularity run image_name.sif command [path] [argument]
+
+  Examples:
+
+  - compile the application tensorCreation using wmake
+    singularity run of2006-py1.6-cpu.sif wmake test/tensorCreation/
+
+  - clean tensorCreation build
+    singularity run of2006-py1.6-cpu.sif wclean test/tensorCreation/
+
+  - run tensorCreation
+    singularity run of2006-py1.6-cpu.sif ./tensorCreation test/tensorCreation/
