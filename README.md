@@ -38,6 +38,7 @@ To create the image, run:
 `$ ssudo singularity build of2006-py1.6-cpu.sif Singularity.def`
 
 With the created image one can open interactive singularity shell by following command :
+
 `$ singularity shell of2006-py1.6-cpu.sif`
 
 The singularity image contains some simple shell logic to execute commands in a given path. The general syntax is:
@@ -46,7 +47,7 @@ The singularity image contains some simple shell logic to execute commands in a 
 
 Test run example :
 
-`$ singularity run of2006-py1.6-cpu.sif command ./Allrun test_cases/cylinder2D_base/`
+`$ singularity run of2006-py1.6-cpu.sif ./Allrun test_cases/cylinder2D_base/`
 
 ### Starting Jupyterlab
 
