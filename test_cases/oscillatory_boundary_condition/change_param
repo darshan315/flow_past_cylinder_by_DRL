@@ -13,7 +13,7 @@ case $1 in
 		else
 			sed -i "0,/frequency/ s/amplitude.*/amplitude        $2;/g" 0.org/U
 			
-			echo -e "\n amplitude is changed to $2. \n"
+			echo -e "\n-> amplitude is changed to $2."
 
 		fi
 		;;
@@ -25,7 +25,7 @@ case $1 in
 		else		
 			sed -i "0,/frequency/ s/frequency.*/frequency        $2;/g" 0.org/U
 			
-			echo -e "\n amplitude is changed to $2. \n"
+			echo -e " -> amplitude is changed to $2."
 
 		fi
 		;;
