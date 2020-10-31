@@ -35,7 +35,7 @@ Singularity is mostly used as only supported virtualization tool for public clus
 
 To create the image, run:
 
-`$ ssudo singularity build of2006-py1.6-cpu.sif Singularity.def`
+`$ sudo singularity build of2006-py1.6-cpu.sif Singularity.def`
 
 With the created image one can open interactive singularity shell by following command :
 

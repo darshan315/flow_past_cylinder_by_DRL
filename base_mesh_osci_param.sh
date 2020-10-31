@@ -21,7 +21,7 @@ cat > test_cases/run/oscillatory_parameter_study/base_pre-mesh/prepare_base_mesh
 #SBATCH --partition=standard
 #SBATCH --nodes=1
 #SBATCH --time=12:00:00
-#SBATCH --job-name=cylinder_
+#SBATCH --job-name=CY_MESH
 #SBATCH --ntasks-per-node=2
 
 module load singularity/3.6.0rc2

@@ -11,7 +11,7 @@ case $1 in
 			echo "No arguments of values supplied. Running default value. Check defaule value in 0.org/U file"
 			exit 1
 		else
-			sed -i "0,/frequency/ s/amplitude.*/amplitude        $2;/g" 0.org/U
+			sed -i "0,/amplitude/ s/amplitude.*/amplitude        $2;/g" 0.org/U
 			
 			echo -e "\n-> amplitude is changed to $2."
 
@@ -25,7 +25,7 @@ case $1 in
 		else		
 			sed -i "0,/frequency/ s/frequency.*/frequency        $2;/g" 0.org/U
 			
-			echo -e " -> amplitude is changed to $2."
+			echo -e "-> frequency is changed to $2."
 
 		fi
 		;;
