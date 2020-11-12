@@ -8,9 +8,10 @@ def lhs(n, a, b):
     lhs stands for Latin hypercube sampling.
     it is used to generate evenly distributed samples over multidimensional data space.
     :param n: number of sample
-    :param a: lower bound of space eg. [a,b] = [0,1]
+    :param a: lower bound of data space eg. [a,b] = [0,1]
     :param b: higher bound of data space eg. [a,b] = [0,1]
     :return:
+    referance : https://youtu.be/r6rp-Qxc9xI
     """
     l_lim = np.arange(a, b, (b - a) / n)
     u_lim = np.arange(a + (b - a) / n, b + (b - a) / n, (b - a) / n)
@@ -42,12 +43,10 @@ amp = np.round(lhs(n, amp_lim[0], amp_lim[1]), 3)
 
 # lhs_plt_data(n, fq_lim, amp_lim, fq, amp)
 
-w_d = "~/DRL_Activeflow/test_cases/run/oscillatory_parameter_study_cluster/newnew/"  # home path
+w_d = "~/DRL_Activeflow/"  # home path
 folder = "test_cases/run/oscillatory_parameter_study"
 path = w_d + folder
 def ad(d): return d + "/cases"
-
-
 case_dir = ad(path)
 
 for t in range(len(amp)):
