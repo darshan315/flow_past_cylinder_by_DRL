@@ -11,3 +11,5 @@ notebooks/.ipynb_checkpoints
 notebooks/oscillatory_bounday_condition/
 of2006-py1.6-cpu.sif
 extra
+notebooks/data_py.config
+notebooks/config.dictionary
