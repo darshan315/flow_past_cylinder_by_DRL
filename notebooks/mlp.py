@@ -56,7 +56,7 @@ X = np.asarray((A, f)).transpose()
 
 train = True
 if train:
-    mlp_model = MLPRegressor(hidden_layer_sizes=(16,32,64,128,128,64,32,16), max_iter=5000, verbose=1, solver='lbfgs',learning_rate_init=0.5,alpha=1e-6).fit(X, fn_1)
+    mlp_model = MLPRegressor(hidden_layer_sizes=(40,20,40), max_iter=10000, n_iter_no_change=2000, verbose=1, learning_rate_init=0.0001).fit(X, fn_1)
     loss = np.sum((mlp_model.predict(X) - fn_1) ** 2)
     print(loss)
     if loss < 1:

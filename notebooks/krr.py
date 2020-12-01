@@ -55,7 +55,7 @@ fn_1 = w[0] * ((c_d ** 2 + c_l ** 2) ** .5) + w[1] * (((c_d_max - c_d_min) ** 2 
 X = np.asarray((A, f)).transpose()
 
 # krr
-krr = KernelRidge(alpha=1e-7, kernel='rbf', gamma=2).fit(X, fn_1)
+krr = KernelRidge(alpha=1e-7, kernel='rbf', gamma=1.5).fit(X, fn_1)
 loss = np.sum((krr.predict(X) - fn_1) ** 2)
 
 # data setting for prediction
@@ -70,6 +70,17 @@ re = krr.predict(data)
 # plot
 lim = [3, 9]
 plot_data(A, f, fn_1, lim)
+plt.title("Original LHS Data")
 
 # krr plot
+plot_data(A,f, krr.predict(X), lim)
+plt.title("Pridicted LHS Data")
+
+# krr plot new data
 plot_data(A_new[:, 0], f_new[:, 0], re, lim)
+plt.title("Generalized on uniform Data")
+
+# error
+lim_e = [0,0.5]
+plot_data(A, f, np.abs(fn_1 - krr.predict(X)), lim_e)
+plt.title("Error between original and predicted LHS data")
