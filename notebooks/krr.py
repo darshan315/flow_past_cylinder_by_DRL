@@ -2,6 +2,10 @@ from sklearn.kernel_ridge import KernelRidge
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+import matplotlib as mpl
+mpl.rcParams['figure.dpi'] = 160
+mpl.rc('text', usetex=True)
+plt.rcParams.update({'font.size': 7})
 
 A = []
 f = []
@@ -35,22 +39,33 @@ c_d_min = np.asarray(c_d_min)
 c_l_max = np.asarray(c_l_max)
 c_l_min = np.asarray(c_l_min)
 
+# uncontrolled state
+cd_uc = [3.14741, 3.17212, 3.19653] # [cd_min, cd_mean, cd_max]
+cl_uc = [-0.904919, -0.0126599, 0.878955] # [cl_min, cl_mean, cl_max]
+uc_val = ((cd_uc[1]**2+cl_uc[1]**2)**.5) + (((cd_uc[2]-cd_uc[0])**2+(cl_uc[2]-cl_uc[0])**2)**.5)
 
-def plot_data(arg1, arg2, arg3, lim):
+
+def plot_data(arg1, arg2, arg3, lim, nointep):
     fig, (ax1) = plt.subplots(1, 1, figsize=(7, 7))
     levels = np.linspace(lim[0], lim[1], 200)
     levels_line = np.linspace(lim[0], lim[1], 50)
-    cntr2 = ax1.tricontourf(arg1, arg2, arg3, levels=levels, cmap="jet")
-    ax1.tricontour(arg1, arg2, arg3, levels=levels_line)
+    if nointep:
+        cntr2 = ax1.contourf(arg1, arg2, arg3, levels=levels, cmap="jet")
+        ax1.contour(arg1, arg2, arg3, levels=levels_line)
+    else:
+        cntr2 = ax1.tricontourf(arg1, arg2, arg3, levels=levels, cmap="jet")
+        ax1.tricontour(arg1, arg2, arg3, levels=levels_line)
     ax1.scatter(arg1, arg2, s=1, color='k')
     ax1.set_ylabel(r"$S_f \times 10$")
     ax1.set_xlabel(r"$\Omega$")
-    fig.colorbar(cntr2, ax=ax1)
+    ax1.set_ylim(4.8,14)
+    cbar=fig.colorbar(cntr2, ax=ax1)
+    cbar.ax.set_ylabel(r"$\Phi$", fontsize=14)
     plt.subplots_adjust(hspace=0.5)
 
 
-w = [1, 1]  # need to update
-fn_1 = w[0] * ((c_d ** 2 + c_l ** 2) ** .5) + w[1] * (((c_d_max - c_d_min) ** 2 + (c_l_max - c_l_min) ** 2) ** .5)
+w = [1, 1]
+fn_1 = (w[0]*((c_d**2+c_l**2)**.5)+w[1]*(((c_d_max-c_d_min)**2+(c_l_max-c_l_min)**2)**.5)) / uc_val
 
 X = np.asarray((A, f)).transpose()
 
@@ -58,29 +73,31 @@ X = np.asarray((A, f)).transpose()
 krr = KernelRidge(alpha=1e-7, kernel='rbf', gamma=1.5).fit(X, fn_1)
 loss = np.sum((krr.predict(X) - fn_1) ** 2)
 
-# data setting for prediction
+# uniform data setting for prediction
 x = np.arange(0.1, 3.5, 0.3)
 y = np.arange(3, 15.1, 1)
 xx, yy = np.meshgrid(x, y)
 A_new = xx.reshape(-1, 1)
 f_new = yy.reshape(-1, 1)
 data = np.asarray([A_new[:, 0], f_new[:, 0]]).transpose()
-re = krr.predict(data)
+pred_uni = krr.predict(data)
+rr = np.reshape(pred_uni, xx.shape)
 
-# plot
-lim = [3, 9]
-plot_data(A, f, fn_1, lim)
+
+# original plot on LHS data
+lim = [0.5, 1.7]
+plot_data(A, f, fn_1, lim, nointep=False)
 plt.title("Original LHS Data")
 
-# krr plot
-plot_data(A,f, krr.predict(X), lim)
+# krr plot on LHS
+plot_data(A,f, krr.predict(X), lim, nointep=False)
 plt.title("Pridicted LHS Data")
 
-# krr plot new data
-plot_data(A_new[:, 0], f_new[:, 0], re, lim)
-plt.title("Generalized on uniform Data")
-
 # error
-lim_e = [0,0.5]
-plot_data(A, f, np.abs(fn_1 - krr.predict(X)), lim_e)
+lim_e = [0, 0.5]
+plot_data(A, f, np.abs(fn_1 - krr.predict(X)), lim_e, nointep=False)
 plt.title("Error between original and predicted LHS data")
+
+# krr plot new uniform data
+plot_data(xx, yy, rr, lim, nointep=True)
+plt.title("Generalization on uniform Data")
