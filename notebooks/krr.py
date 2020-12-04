@@ -48,13 +48,13 @@ uc_val = ((cd_uc[1]**2+cl_uc[1]**2)**.5) + (((cd_uc[2]-cd_uc[0])**2+(cl_uc[2]-cl
 def plot_data(arg1, arg2, arg3, lim, nointep):
     fig, (ax1) = plt.subplots(1, 1, figsize=(7, 7))
     levels = np.linspace(lim[0], lim[1], 200)
-    levels_line = np.linspace(lim[0], lim[1], 50)
+    levels_line = np.linspace(lim[0], lim[1], 30)
     if nointep:
         cntr2 = ax1.contourf(arg1, arg2, arg3, levels=levels, cmap="jet")
-        ax1.contour(arg1, arg2, arg3, levels=levels_line)
+        ax1.contour(arg1, arg2, arg3, levels=levels_line, linewidths=1)
     else:
         cntr2 = ax1.tricontourf(arg1, arg2, arg3, levels=levels, cmap="jet")
-        ax1.tricontour(arg1, arg2, arg3, levels=levels_line)
+        ax1.tricontour(arg1, arg2, arg3, levels=levels_line, linewidths=1)
     ax1.scatter(arg1, arg2, s=1, color='k')
     ax1.set_ylabel(r"$S_f \times 10$")
     ax1.set_xlabel(r"$\Omega$")
@@ -74,8 +74,8 @@ krr = KernelRidge(alpha=1e-7, kernel='rbf', gamma=1.5).fit(X, fn_1)
 loss = np.sum((krr.predict(X) - fn_1) ** 2)
 
 # uniform data setting for prediction
-x = np.arange(0.1, 3.5, 0.3)
-y = np.arange(3, 15.1, 1)
+x = np.arange(0.1, 3.5, 0.1)
+y = np.arange(3, 15.1, 0.3)
 xx, yy = np.meshgrid(x, y)
 A_new = xx.reshape(-1, 1)
 f_new = yy.reshape(-1, 1)
@@ -94,7 +94,7 @@ plot_data(A,f, krr.predict(X), lim, nointep=False)
 plt.title("Pridicted LHS Data")
 
 # error
-lim_e = [0, 0.5]
+lim_e = [0, 0.2]
 plot_data(A, f, np.abs(fn_1 - krr.predict(X)), lim_e, nointep=False)
 plt.title("Error between original and predicted LHS data")
 
