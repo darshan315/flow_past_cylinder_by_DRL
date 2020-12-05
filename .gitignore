@@ -14,3 +14,6 @@ extra
 notebooks/data_py.config
 notebooks/config.dictionary
 notebooks/.idea/
+.vscode/
+notebooks/.vscode/
+

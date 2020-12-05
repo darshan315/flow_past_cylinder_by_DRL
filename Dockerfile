@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install -y  \
   python3-pip \
   python3-scipy \
   python3-tqdm \
-  python3-tabulate \
   texlive-latex-extra \
   texlive-fonts-recommended && \
   rm -rf /var/lib/apt/lists/*
@@ -26,6 +25,7 @@ RUN pip3 install \
   jupyterlab \
   scikit-learn \
   ipympl \
+  tabulate \
   torch==1.6.0+cpu torchvision==0.7.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
 # expose port to run in browser
