@@ -1,8 +1,8 @@
 username="$USER"
 user="$(id -u)"
-default_image="andreweiner/juypter_darshan:v1"
+default_image="darsh3/jupyterlab:latest"
 image="${1:-$default_image}"
-default_container_name="jupyter-v1"
+default_container_name="jupyterlab_darsh"
 container_name="${2:-$default_container_name}"
 
 docker run -it -d -p 8000:8000 --name $container_name \
