@@ -1,3 +1,7 @@
-tensorCreation.C
+main.cpp
+args.h
+eval_policy.h
+network.h
+ppo.h
 
-EXE = tensorCreation
+EXE = main
