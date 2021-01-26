@@ -88,16 +88,20 @@ rr = np.reshape(pred_uni, xx.shape)
 lim = [0.5, 1.7]
 plot_data(A, f, fn_1, lim, nointep=False)
 plt.title("Original LHS Data")
+plt.savefig('origin_plot_lhs.png')
 
 # krr plot on LHS
 plot_data(A,f, krr.predict(X), lim, nointep=False)
 plt.title("Pridicted LHS Data")
+plt.savefig('krr_lhs.png')
 
 # error
 lim_e = [0, 0.2]
 plot_data(A, f, np.abs(fn_1 - krr.predict(X)), lim_e, nointep=False)
 plt.title("Error between original and predicted LHS data")
+plt.savefig('error.png')
 
 # krr plot new uniform data
 plot_data(xx, yy, rr, lim, nointep=True)
 plt.title("Generalization on uniform Data")
+plt.savefig('frr_for_new.png')

@@ -16,4 +16,25 @@ notebooks/config.dictionary
 notebooks/.idea/
 .vscode/
 notebooks/.vscode/
+.gnupg/
+.ssh/
+.vscode-server/
+notebooks/LHS_data_vis.png
+notebooks/LHS_data_weight.png
+notebooks/PARAL_SIRL.png
+notebooks/cd_fft.png
+notebooks/cl_fft.png
+notebooks/error.png
+notebooks/frr_for_new.png
+notebooks/krr_lhs.png
+notebooks/lhs_data_distribution.png
+notebooks/mesh_dp_cd.png
+notebooks/mesh_dp_cd_400.png
+notebooks/mesh_dp_cl.png
+notebooks/mesh_dp_cl_400.png
+notebooks/min_mm_cd.png
+notebooks/min_mm_cl.png
+notebooks/origin_plot_lhs.png
+notebooks/sinefit_cd.png
+notebooks/sinefit_cl.png
 
