@@ -31,9 +31,9 @@ public:
 						TestEnvironment& env,
 						hyperparameters& hyp,
 						torch::optim::Optimizer& opt,
-						std::ofstream& out ); -> void;
+						std::ofstream& out ) -> void;
 
-	static auto PPO::update( NN_model& nn_ac,
+	static auto update( NN_model& nn_ac,
 							torch::Tensor& states,
 							torch::Tensor& actions,
 							torch::Tensor& log_probs,
@@ -42,7 +42,7 @@ public:
 							torch::optim::Optimizer& opt, 
 							hyperparameters& hyp ) -> void;
 
-	static auto PPO::act_in_env_update( NN_model& nn_ac,
+	static auto act_in_env_update( NN_model& nn_ac,
 					 	  		 TestEnvironment& env,
 								 hyperparameters& hyp,
 								 int *bfs,
@@ -51,7 +51,7 @@ public:
 						  		 std::ofstream& out,
 								 int cout_train );
 
-	static auto PPO::returns( std::vector<torch::Tensor>& rewards,
+	static auto returns( std::vector<torch::Tensor>& rewards,
 				  			  std::vector<torch::Tensor>& dones,
 				  			  std::vector<torch::Tensor>& values,
 				  			  double gamma,
@@ -185,15 +185,15 @@ auto PPO::returns(std::vector<torch::Tensor>& rewards,
 	}
 
 auto PPO::update( NN_model& nn_ac,
-                  		 torch::Tensor& states,
-                 		 torch::Tensor& actions,
-                 		 torch::Tensor& log_probs,
-                 		 torch::Tensor& returns,
-                		 torch::Tensor& advantages, 
-                 		 torch::optim::Optimizer& opt, 
-                 		 hyperparameters& hyp ) -> void
+                  torch::Tensor& states,
+                  torch::Tensor& actions,
+                  torch::Tensor& log_probs,
+                  torch::Tensor& returns,
+                  torch::Tensor& advantages, 
+                  torch::optim::Optimizer& opt, 
+                  hyperparameters& hyp ) -> void
 {
-    for (uint n=0;n<hyp.n_update_per_iteration;n++)
+    for (int n=0;n<hyp.n_update_per_iteration;n++)
     {
         // Generate random indices.
         torch::Tensor cpy_sta = torch::zeros({hyp.mini_batch_size, states.size(1)}, states.type());
@@ -206,7 +206,7 @@ auto PPO::update( NN_model& nn_ac,
 		 Here sampling the minibatch from the whole data set
 		 */
 
-        for (uint b=0;b<hyp.mini_batch_size;b++) {
+        for (int b=0;b<hyp.mini_batch_size;b++) {
             uint idx = std::uniform_int_distribution<uint>(0, hyp.epl-1)(re);
             cpy_sta[b] = states[idx];
             cpy_act[b] = actions[idx];
@@ -240,7 +240,7 @@ auto PPO::learn_agent( NN_model& nn_ac,
 					   TestEnvironment& env, 
 					   hyperparameters& hyp,
 					   torch::optim::Optimizer& opt,
-					   std::ofstream& out)
+					   std::ofstream& out) -> void
 	{
 		int bfs = 0;
 		double best_avg_reward = 0.;

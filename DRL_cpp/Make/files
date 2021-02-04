@@ -1,6 +1,3 @@
-main.cpp
-Testenv.h
-network.h
-ppo.h
+main.C
 
 EXE = main

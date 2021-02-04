@@ -58,7 +58,7 @@ struct NN_modelImpl : public torch::nn::Module
 				
   			}
 	
-    torch::Tensor forward(torch::Tensor obs) {
+    auto forward(torch::Tensor obs) {
 
 		//actor
     	mu_ = torch::relu(ac1_->forward(obs));
