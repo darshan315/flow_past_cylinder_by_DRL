@@ -17,7 +17,7 @@ struct TestEnvironment
 
     double old_dist_;
 
-    TestEnvironment(double x, double y)
+    TestEnvironment(double x, double y) : pos_{2}, goal_{2}, state_{4}
     {
         goal_ = {x, y};
         pos_ = {0, 0};
