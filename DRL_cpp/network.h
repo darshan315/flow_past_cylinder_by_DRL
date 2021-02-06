@@ -54,7 +54,7 @@ struct NN_modelImpl : public torch::nn::Module
 				register_module("cr1", cr1_);
 				register_module("cr2", cr2_);
 				register_module("cr3", cr3_);
-				register_module("cr3", cr_val_);
+				register_module("cr_val", cr_val_);
 				
   			}
 	

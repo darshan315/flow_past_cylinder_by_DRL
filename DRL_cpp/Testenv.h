@@ -1,5 +1,6 @@
-#include <Eigen/Core>
 #include <torch/torch.h>
+#include <vector>
+#include <math.h>
 
 enum STATUS {
     PLAYING,
@@ -10,17 +11,17 @@ enum STATUS {
 
 struct TestEnvironment
 {
-    Eigen::Vector2d pos_;
-    Eigen::Vector2d goal_;
-    Eigen::VectorXd state_;
+    std::vector<double> pos_;
+    std::vector<double> goal_;
+    std::vector<double> state_;
 
     double old_dist_;
 
-    TestEnvironment(double x, double y) : goal_(2), pos_(2), state_(4)
+    TestEnvironment(double x, double y)
     {
-        goal_ << x, y;
-        pos_.setZero();
-        state_ << pos_, goal_;  
+        goal_ = {x, y};
+        pos_ = {0, 0};
+        state_ = {pos_[0], pos_[1], goal_[0], goal_[1]};  
 
         old_dist_ = GoalDist(pos_);
     };
@@ -30,10 +31,10 @@ struct TestEnvironment
         old_dist_ = GoalDist(pos_);
 
         double max_step = 0.1;
-        pos_(0) += max_step*act_x;
-        pos_(1) += max_step*act_y;
+        pos_[0] += max_step*act_x;
+        pos_[1] += max_step*act_y;
 
-        state_ << pos_, goal_;
+        state_ = {pos_[0], pos_[1], goal_[0], goal_[1]};
 
         torch::Tensor state = State();
         torch::Tensor done = torch::zeros({1, 1}, torch::kF64);
@@ -56,7 +57,7 @@ struct TestEnvironment
     }
     auto State() -> torch::Tensor
     {
-        torch::Tensor state = torch::zeros({1, state_.size()}, torch::kF64);
+        torch::Tensor state = torch::zeros({1, static_cast<int>(state_.size())}, torch::kF64);
         std::memcpy(state.data_ptr(), state_.data(), state_.size()*sizeof(double));
         return state;
     }    
@@ -80,21 +81,21 @@ struct TestEnvironment
 
         return reward;
     }
-    double GoalDist(Eigen::Vector2d& x) 
+    double GoalDist(std::vector<double>& x) 
     { 
-        return (goal_ - x).norm();
+        return sqrt( pow((goal_[0]-x[0]), 2.0) + pow((goal_[1]-x[1]), 2.0) );
     }
     void Reset()
     {
-        pos_.setZero();
-        state_ << pos_, goal_;
+        pos_={0,0};
+        state_ = {pos_[0], pos_[1], goal_[0], goal_[1]};
     }
     void SetGoal(double x, double y)
     {
-        goal_(0) = x;
-        goal_(1) = y;
+        goal_[0] = x;
+        goal_[1] = y;
 
         old_dist_ = GoalDist(pos_);
-        state_ << pos_, goal_;
+        state_ = {pos_[0], pos_[1], goal_[0], goal_[1]};
     }
 };

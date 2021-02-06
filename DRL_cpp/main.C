@@ -1,5 +1,4 @@
 #include <fstream>
-#include <Eigen/Core>
 #include <torch/torch.h>
 #include <random>
 #include "network.h"
@@ -37,7 +36,7 @@ int main() {
     out.open("../data/data.csv");
 
     // episode, agent_x, agent_y, goal_x, goal_y, STATUS=(PLAYING, WON, LOST, RESETTING)
-    out << 1 << ", " << env.pos_(0) << ", " << env.pos_(1) << ", " << env.goal_(0) << ", " << env.goal_(1) << ", " << RESETTING << "\n";
+    std::cout << 1 << ", " << env.pos_[0] << ", " << env.pos_[1] << ", " << env.goal_[0] << ", " << env.goal_[1] << ", " << RESETTING << "\n";
 
     PPO::learn_agent(nn_ac, env, hyp, opt, out);
 

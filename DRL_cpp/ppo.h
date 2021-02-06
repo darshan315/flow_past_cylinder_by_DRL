@@ -109,7 +109,7 @@ auto PPO::act_in_env_update(NN_model& nn_ac,
 			avg_reward += rewards[*bfs][0][0].item<double>()/hyp.total_t_batch;
 
 			//output log in cmd
-			out << cout_train << ", " << env.pos_(0) << ", " << env.pos_(1) << ", " << env.goal_(0) << ", " << env.goal_(1) << ", " << RESETTING << "\n";
+			std::cout << cout_train << ", " << env.pos_[0] << ", " << env.pos_[1] << ", " << env.goal_[0] << ", " << env.goal_[1] << ", " << RESETTING << "\n";
 
 
 			if (dones[*bfs][0][0].item<double>() == 1.) 
@@ -123,7 +123,7 @@ auto PPO::act_in_env_update(NN_model& nn_ac,
                 env.Reset();
 
                 // episode, agent_x, agent_y, goal_x, goal_y, STATUS=(PLAYING, WON, LOST, RESETTING)
-                out << cout_train << ", " << env.pos_(0) << ", " << env.pos_(1) << ", " << env.goal_(0) << ", " << env.goal_(1) << ", " << RESETTING << "\n";
+                std::cout << cout_train << ", " << env.pos_[0] << ", " << env.pos_[1] << ", " << env.goal_[0] << ", " << env.goal_[1] << ", " << RESETTING << "\n";
             }
 
 			*bfs+=1;
@@ -248,7 +248,7 @@ auto PPO::learn_agent( NN_model& nn_ac,
 
 		for (int t_train = 1; t_train < hyp.total_t_train; t_train++) {			// step 2
 
-			printf("epoch %u/%u\n", t_train, hyp.total_t_train);
+			printf("Training iteration of PPO: %u/%u\n", t_train, hyp.total_t_train);
 
 			//getting batch infos			 										// step 3
 			auto avg_reward_n = PPO::act_in_env_update(nn_ac, env, hyp, &bfs, avg_reward, opt, out, t_train);
@@ -272,10 +272,9 @@ auto PPO::learn_agent( NN_model& nn_ac,
 			env.Reset();
 
 			// episode, agent_x, agent_y, goal_x, goal_y, STATUS=(PLAYING, WON, LOST, RESETTING)
-			out << t_train << ", " << env.pos_(0) << ", " << env.pos_(1) << ", " << env.goal_(0) << ", " << env.goal_(1) << ", " << RESETTING << "\n";
+			std::cout << t_train << ", " << env.pos_[0] << ", " << env.pos_[1] << ", " << env.goal_[0] << ", " << env.goal_[1] << ", " << RESETTING << "\n";
 		}
 
 		out.close();
 	
 	}
-

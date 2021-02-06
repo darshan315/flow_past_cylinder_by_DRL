@@ -1,13 +1,11 @@
 EXE_INC = \
     -I$(TORCH_LIBRARIES)/include \
     -I$(TORCH_LIBRARIES)/include/torch/csrc/api/include \
-    -I/home/DRL_cpp/dependencies/eigen3/Eigen \
 
 EXE_LIBS = \
     -Wl,-rpath,$(TORCH_LIBRARIES)/lib $(TORCH_LIBRARIES)/lib/libtorch.so $(TORCH_LIBRARIES)/lib/libc10.so \
     -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch_cpu.so \
     -Wl,--as-needed $(TORCH_LIBRARIES)/lib/libc10.so \
-    -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch.so \
-    -Wl,--as-needed,/home/DRL_cpp/dependencies/eigen3/Eigen
+    -Wl,--no-as-needed,$(TORCH_LIBRARIES)/lib/libtorch.so
 
     
