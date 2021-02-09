@@ -40,3 +40,4 @@ notebooks/sinefit_cl.png
 dependancies
 DRL_cpp/Make/linux64GccDPInt32Opt/
 DRL_cpp/main
+DRL_py/.idea/
