@@ -41,3 +41,4 @@ dependancies
 DRL_cpp/Make/linux64GccDPInt32Opt/
 DRL_cpp/main
 DRL_py/.idea/
+DRL_py/__pycache__/

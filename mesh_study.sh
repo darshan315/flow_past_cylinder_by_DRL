@@ -14,7 +14,7 @@ do
 	./Allclean
 	./mesh bmcell $i
 	./solveronly
-	cd .. ; cd .. ; cd .. ; cd ..
+	cd ../../../..
 	cp -r test_cases/run/mesh_convergence_study/refinement_$i/system notebooks/plot_data/cases/case_$i
 	cp -r test_cases/run/mesh_convergence_study/refinement_$i/postProcessing notebooks/plot_data/cases/case_$i
 	

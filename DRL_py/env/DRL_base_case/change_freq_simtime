@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+
+trap '{ echo "Hey, you pressed Ctrl-C.  Time to quit." ; exit 1; }' INT
+
+
+
+# changing the angular velocity
+if [ -n "$1" ]
+then
+	sed -i "0,/frequency/ s/frequency.*/frequency        $2;/g" 0/U
+	echo -e "\n-> amplitude is changed to $1."
+else
+	echo -e "\n No change is implemented in angular frequency\n"
+	exit 1
+fi
+
+
+
+# changing the initial time of simulation
+if [ -n "$2" ]
+then
+	sed -i "1,/startTime/ s/startTime.*/startTime       $2;/g" system/controlDict	
+	echo -e "\n-> initial time of simulation is changed to $2."	
+else
+	echo -e "\n No change is implemented in initial time of simulation\n"
+	exit 1
+fi
+
+

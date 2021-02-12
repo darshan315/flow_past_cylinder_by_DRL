@@ -1,0 +1,162 @@
+#!/usr/bin/bash
+
+# removing pre mesh files
+[ -e "log.renumberMesh" ] && rm "log.renumberMesh"
+[ -e "log.extrudeMesh" ] && rm "log.extrudeMesh"
+[ -e "log.snappyHexMesh" ] && rm "log.snappyHexMesh"
+[ -e "constant/polyMesh" ] && rm -r "constant/polyMesh"
+
+
+trap '{ echo "Hey, you pressed Ctrl-C.  Time to quit." ; exit 1; }' INT
+
+
+# cases
+case $1 in 
+	bmgrad )
+		if [ $# -eq 1 ]
+		then
+			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
+		else
+			sed -i "s/simpleGrading.*/simpleGrading ($2 $3 $4)/g" system/blockMeshDict
+			
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
+		fi
+		;;
+	bmcell )
+		if [ $# -eq 1 ]
+		then
+			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
+		else		
+			sed -i "0,/blocksX/ s/blocksX.*/blocksX $2;/g" system/blockMeshDict
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
+
+		fi
+		;;
+	bmboth )
+		if [ $# -eq 1 ]
+		then
+			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
+		else		
+			sed -i "0,/blocksX/ s/blocksX.*/blocksX $2;/g" system/blockMeshDict		
+			sed -i "s/simpleGrading.*/simpleGrading ($3 $4 $5)/g" system/blockMeshDict
+			
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
+
+		fi
+		;;
+	spsurf )
+		if [ $# -eq 1 ]
+		then
+			echo "No arguments of values supplied. Running default value. Check defaule value in blockMeshDict file"
+			exit 1
+		else		
+			sed -i "s/\blevel\b.*/level ($2 $3)/g" system/snappyHexMeshDict
+			
+			echo -e "Meshing..."
+			blockMesh &> log.blockMesh
+			snappyHexMesh -overwrite  &> log.snappyHexMesh
+			extrudeMesh &> log.extrudeMesh
+			echo -e "Mesh generated"
+
+		fi
+		;;
+	"" )
+		read -p "Defaulf mesh settings is applied. Do you want to refine? [y|n] " response
+			if [[ $response =~ [yY](es)* ]]
+			then
+				echo -e " In which mesh do you want to refine : \n1) blockMesh\n2) snappyHexMesh surface"
+				read -p "Enter the number of choise : " mres		
+				
+				if [[ $mres = [1] ]]
+				then
+						echo -e "\n1) blockMesh cell numbers \n2) blockMesh simpleGradient \n3) Both"
+						read -p "Enter choise : " bmval
+								
+						if [[ $bmval = [1] ]]
+						then
+							echo -e "Enter the cell number(x): \n\nval\n"
+							read valuesbm
+							echo -e "this is the values $valuesbm"
+							sed -i "0,/blocksX/ s/blocksX.*/blocksX $valuebm;/g" system/blockMeshDict
+							
+							echo -e "Meshing..."
+							blockMesh &> log.blockMesh
+							snappyHexMesh -overwrite  &> log.snappyHexMesh
+							extrudeMesh &> log.extrudeMesh
+							echo -e "Mesh generated"
+
+						elif [[ $bmval = [2] ]]
+						then
+							echo -e "Enter the simpleGradient values: \n\nval1 val2 val3\n"
+							read valuesbm
+							echo -e "this is the values $valuesbm"
+							sed -i "s/simpleGrading.*/simpleGrading ($valuesbm)/g" system/blockMeshDict
+							
+							echo -e "Meshing..."
+							blockMesh &> log.blockMesh
+							snappyHexMesh -overwrite  &> log.snappyHexMesh
+							extrudeMesh &> log.extrudeMesh
+							echo -e "Mesh generated"
+
+						elif [[ $bmval = [3] ]]
+						then
+							echo -e "\nEnter the cell number(x): \n\nval\n"
+							read valuesbm
+							echo -e "this is the values $valuesbm"
+							sed -i "0,/blocksX/ s/blocksX.*/blocksX $valuebm;/g" system/blockMeshDict
+							
+							echo -e "\nEnter the simpleGradient values: \n\nval1 val2 val3\n"
+							read valuesbm
+							echo -e "this is the values $valuesbm"
+							sed -i "s/simpleGrading.*/simpleGrading ($valuesbm)/g" system/blockMeshDict
+							
+							echo -e "Meshing..."
+							blockMesh &> log.blockMesh
+							snappyHexMesh -overwrite  &> log.snappyHexMesh
+							extrudeMesh &> log.extrudeMesh
+							echo -e "Mesh generated"
+							
+						else
+							exit 1
+						fi
+				elif [[ $mres = [2] ]]
+				then 
+					echo -e "Enter the level values: \n\nval1 val2\n"
+					read valuesbm
+					echo -e "this is the values $valuesbm"
+					sed -i "s/\blevel\b.*/level ($valuesbm)/g" system/snappyHexMeshDict
+					
+					echo -e "Meshing..."
+					blockMesh &> log.blockMesh
+					snappyHexMesh -overwrite  &> log.snappyHexMesh
+					extrudeMesh &> log.extrudeMesh
+					echo -e "Mesh generated"
+
+				else
+					echo Please choose the right choise.
+					exit 1
+				fi
+				
+			else
+				echo -e "Meshing..."
+				blockMesh &> log.blockMesh
+				snappyHexMesh -overwrite  &> log.snappyHexMesh
+				extrudeMesh &> log.extrudeMesh
+				echo -e "Mesh generated"
+			fi
+esac

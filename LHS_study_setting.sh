@@ -75,5 +75,5 @@ mpirun -np 4 singularity run of2006-py1.6-cpu.sif ./sim_processing ./$FOLDERS/A$
 EOF
 	chmod +x jobscript.sh
 #----------------------------------------------------------------------------#	
-	cd .. ; cd .. ; cd .. ; cd .. ; cd ..	
+	cd ../../../../..	
 done
