@@ -1,3 +1,0 @@
-#!/bin/bash
-renumberMesh -overwrite parallel &> log.renumberMesh
-pimpleFoam -parallel &> log.pimpleFoam
