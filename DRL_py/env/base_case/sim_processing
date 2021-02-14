@@ -1,0 +1,3 @@
+#!/bin/bash
+
+pimpleFoam &> log.pimpleFoam

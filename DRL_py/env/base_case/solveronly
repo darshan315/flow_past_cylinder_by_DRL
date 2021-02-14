@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+cd "${0%/*}" || exit       # Tutorial run functions
+#------------------------------------------------------------------------------
+
+cp -r 0.org 0
+setExprBoundaryFields
+decomposePar
+mpirun -np 2 renumberMesh -overwrite -parallel
+mpirun -np 2 pimpleFoam -parallel
+
