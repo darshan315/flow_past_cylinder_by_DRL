@@ -1,4 +1,0 @@
-#!/bin/bash
-
-setExprBoundaryFields &> log.setExprBoundaryFields
-decomposePar &> log.decomposePar
