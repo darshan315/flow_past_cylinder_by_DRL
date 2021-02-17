@@ -44,3 +44,4 @@ DRL_py/.idea/
 DRL_py/__pycache__/
 DRL_py/env/DRL_base_case/
 DRL_py/env/trajectories/
+DRL_py/python_package.sif
