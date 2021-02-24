@@ -40,7 +40,9 @@ singularity run ../of2006-py1.6-cpu.sif {file} {job_dir}""")
                   f'sed -i "/^endTime/ s/endTime.*/endTime         {self.base_setup_end_time};/g" {path}/system/controlDict')
         self.write_jobfile(job_name='init_set', file='./Allrun', job_dir=path)
         jobfile_path = f'{path}' + '/jobscript.sh'
+
         subprocess.run(['sh', 'submit_job.sh', jobfile_path], check=True)
+        subprocess.run(['rm', f'{jobfile_path}'], check=True)
         print("\n Initial setup is done... \n")
 
     def read_data(self, trajectory, buffer):
@@ -63,7 +65,6 @@ singularity run ../of2006-py1.6-cpu.sif {file} {job_dir}""")
     def run_trajectory(self, buffer_counter, proc, results):
         print(f"\n starting trajectory : {buffer_counter} \n")
         traj_path = f"./env/sample_{self.sample}/trajectory_{buffer_counter}"
-        print(f"\n starting trajectory : {buffer_counter} \n")
         os.makedirs(traj_path, exist_ok=True)
         os.popen(f'cp -r ./env/initial_setup/* {traj_path}/ && '
                  f'sed -i "/^startFrom/ s/startFrom.*/startFrom       latestTime;/g" {traj_path}/system/controlDict &&'
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     buffer_size = 4
     base_setup_end_time = 0.2
     trajectory_end_time = 0.4
-    base_case_setup = True
+    base_case_setup = False
     buffer = []
     sample = 1
     env = env(n_worker, buffer_size, base_setup_end_time, trajectory_end_time, base_case_setup, buffer, sample)
