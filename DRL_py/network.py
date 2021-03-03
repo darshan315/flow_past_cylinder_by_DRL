@@ -10,105 +10,83 @@ import numpy as np
 
 
 class FCCA(nn.Module):
-	"""
-		A standard in_dim-64-64-out_dim Feed Forward Neural Network for Actor.
-		Init and methods input : in_dim, out_dim, states
-	"""
-	def __init__(self, input_dim, output_dim, hidden_dims=(64, 64), activation_fc=F.relu):
-		super(FCCA, self).__init__()
-		self.activation_fc = activation_fc
 
-		self.input_layer = nn.Linear(input_dim[0], hidden_dims[0])
-		self.hidden_layers = nn.ModuleList()
-		for i in range(len(hidden_dims) - 1):
-			hidden_layer = nn.Linear(hidden_dims[i], hidden_dims[i + 1])
-			self.hidden_layers.append(hidden_layer)
-		self.output_layer = nn.Linear(hidden_dims[-1], output_dim)
+    def __init__(self, input_dim, output_dim, hidden_dims=(64, 64), activation_fc=F.relu):
+        super(FCCA, self).__init__()
+        self.activation_fc = activation_fc
+        self.env_min = 1
+        self.env_max = 1
 
-		device = "cpu"
-		if torch.cuda.is_available():
-			device = "cuda:0"
-		self.device = torch.device(device)
-		self.to(self.device)
+        self.input_layer = nn.Linear(input_dim[0], hidden_dims[0])
+        self.hidden_layers = nn.ModuleList()
+        for i in range(len(hidden_dims) - 1):
+            hidden_layer = nn.Linear(hidden_dims[i], hidden_dims[i + 1])
+            self.hidden_layers.append(hidden_layer)
+        self.output_layer_mean = nn.Linear(hidden_dims[-1], self.env_max)
+        self.output_layer_log_std = nn.Linear(hidden_dims[-1], self.env_max)
 
-	def _format(self, states):
-		x = states
-		if not isinstance(x, torch.Tensor):
-			x = torch.tensor(x, device=self.device, dtype=torch.float32)
-			if len(x.size()) == 1:
-				x = x.unsqueeze(0)
-		return x
+    def forward(self, states):
+        x = self._format(states)
+        x = self.activation_fc(self.input_layer(x))
+        for hidden_layer in self.hidden_layers:
+            x = self.activation_fc(hidden_layer(x))
+        x_mean = self.output_layer_mean(x)
+        x_log_std = self.output_layer_log_std(x)
 
-	def forward(self, states):
-		x = self._format(states)
-		x = self.activation_fc(self.input_layer(x))
-		for hidden_layer in self.hidden_layers:
-			x = self.activation_fc(hidden_layer(x))
-		return self.output_layer(x)
+        return x_mean, x_log_std
 
-	def np_pass(self, states):
-		logits = self.forward(states)
-		np_logits = logits.detach().cpu().numpy()
-		dist = torch.distributions.Categorical(logits=logits)
-		actions = dist.sample()
-		np_actions = actions.detach().cpu().numpy()
-		logpas = dist.log_prob(actions)
-		np_logpas = logpas.detach().cpu().numpy()
-		is_exploratory = np_actions != np.argmax(np_logits, axis=1)
-		return np_actions, np_logpas, is_exploratory
+    @torch.jit.export
+    def _format(self, states):
+        x = states
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, device=self.device, dtype=torch.float32)
+            if len(x.size()) == 1:
+                x = x.unsqueeze(0)
+        return x
 
-	def select_action(self, states):
-		logits = self.forward(states)
-		dist = torch.distributions.Categorical(logits=logits)
-		action = dist.sample()
-		return action.detach().cpu().item()
+    @torch.jit.ignore
+    def get_predictions(self, states, actions):
+        states, actions = self._format(states), self._format(actions)
+        mean_ac, std_ac = self.forward(states)
+        dist = torch.distributions.Normal(mean_ac, std_ac.exp())
+        logpas = dist.log_prob(actions)
+        entropies = dist.entropy()
+        return logpas, entropies
 
-	def get_predictions(self, states, actions):
-		states, actions = self._format(states), self._format(actions)
-		logits = self.forward(states)
-		dist = torch.distributions.Categorical(logits=logits)
-		logpas = dist.log_prob(actions)
-		entropies = dist.entropy()
-		return logpas, entropies
-
-	def select_greedy_action(self, states):
-		logits = self.forward(states)
-		return np.argmax(logits.detach().squeeze().cpu().numpy())
+    @torch.jit.ignore
+    def select_greedy_action(self, states):
+        mean_ac, std_ac = self.forward(states)
+        return np.argmax(mean_ac.detach().squeeze().cpu().numpy())
 
 
 class FCV(nn.Module):
-	"""
-		A standard in_dim-64-64-out_dim Feed Forward Neural Network for Critic.
-		Init and methods input : in_dim, out_dim, states
-	"""
-	def __init__(self, input_dim, hidden_dims=(32, 32), activation_fc=F.relu):
-		super(FCV, self).__init__()
-		self.activation_fc = activation_fc
+    """
+        A standard in_dim-64-64-out_dim Feed Forward Neural Network for Critic.
+        Init and methods input : in_dim, out_dim, states
+    """
 
-		self.input_layer = nn.Linear(input_dim[0], hidden_dims[0])
-		self.hidden_layers = nn.ModuleList()
-		for i in range(len(hidden_dims) - 1):
-			hidden_layer = nn.Linear(hidden_dims[i], hidden_dims[i + 1])
-			self.hidden_layers.append(hidden_layer)
-		self.output_layer = nn.Linear(hidden_dims[-1], 1)
+    def __init__(self, input_dim, hidden_dims=(32, 32), activation_fc=F.relu):
+        super(FCV, self).__init__()
+        self.activation_fc = activation_fc
 
-		device = "cpu"
-		if torch.cuda.is_available():
-			device = "cuda:0"
-		self.device = torch.device(device)
-		self.to(self.device)
+        self.input_layer = nn.Linear(input_dim[0], hidden_dims[0])
+        self.hidden_layers = nn.ModuleList()
+        for i in range(len(hidden_dims) - 1):
+            hidden_layer = nn.Linear(hidden_dims[i], hidden_dims[i + 1])
+            self.hidden_layers.append(hidden_layer)
+        self.output_layer = nn.Linear(hidden_dims[-1], 1)
 
-	def _format(self, states):
-		x = states
-		if not isinstance(x, torch.Tensor):
-			x = torch.tensor(x, device=self.device, dtype=torch.float32)
-			if len(x.size()) == 1:
-				x = x.unsqueeze(0)
-		return x
+    def _format(self, states):
+        x = states
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, device=self.device, dtype=torch.float32)
+            if len(x.size()) == 1:
+                x = x.unsqueeze(0)
+        return x
 
-	def forward(self, states):
-		x = self._format(states)
-		x = self.activation_fc(self.input_layer(x))
-		for hidden_layer in self.hidden_layers:
-			x = self.activation_fc(hidden_layer(x))
-		return self.output_layer(x).squeeze()
+    def forward(self, states):
+        x = self._format(states)
+        x = self.activation_fc(self.input_layer(x))
+        for hidden_layer in self.hidden_layers:
+            x = self.activation_fc(hidden_layer(x))
+        return self.output_layer(x).squeeze()

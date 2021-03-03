@@ -87,11 +87,11 @@ class env:
 
 
 if __name__ == "__main__":
-    n_worker = 2
-    buffer_size = 4
+    n_worker = 1
+    buffer_size = 2
     base_setup_end_time = 0.2
     trajectory_end_time = 0.4
-    base_case_setup = False
+    base_case_setup = True
     buffer = []
     sample = 1
     env = env(n_worker, buffer_size, base_setup_end_time, trajectory_end_time, base_case_setup, buffer, sample)
