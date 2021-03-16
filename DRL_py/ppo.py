@@ -1,209 +1,166 @@
-import torch
-import numpy as np
-from itertools import count
-import tempfile
-import random
+"""
+    This file has function containg main PPO algorithm
+
+    called in : main.py
+"""
+
 import time
 
-EPS = 1e-6
+from reply_buffer import *
+from eval_score_and_trace_update import *
 
 
-def evaluate(eval_model, eval_env, n_episodes=1, greedy=True):
-    rs = []
-    for _ in range(n_episodes):
-        s, d = eval_env.reset(), False
-        rs.append(0)
-        for _ in count():
-            if greedy:
-                a = eval_model.select_greedy_action(s)
-            else:
-                a = eval_model.select_action(s)
-            s, r, d, _ = eval_env.step(a)
-            rs[-1] += r
-            if d: break
-    return np.mean(rs), np.std(rs)
+def train_model(value_model,
+                policy_model,
+                env,
+                policy_optimizer,
+                policy_optimization_epochs,
+                policy_sample_ratio,
+                policy_clip_range,
+                policy_model_max_grad_norm,
+                policy_stopping_kl,
+                entropy_loss_weight,
+                value_optimization_epochs,
+                value_optimizer,
+                value_sample_ratio,
+                value_clip_range,
+                value_model_max_grad_norm,
+                value_stopping_mse,
+                gamma,
+                lambda_,
+                r_1,
+                r_2,
+                sample,
+                n_sensor,
+                EPS,
+                evaluation_score):
+    """
 
+    Args:
+        value_model: value model instance
+        policy_model: polica model instance
+        env: env class instance
+        policy_optimizer: policy optimizer -> adam
+        policy_optimization_epochs: no of epoch for policy training
+        policy_sample_ratio: no of trajectory to take for training
+        policy_clip_range: clipping parameter of policy loss
+        policy_model_max_grad_norm: maximum norm tolerance of policy optimization
+        policy_stopping_kl: tolerance for training of policy net
+        entropy_loss_weight: factor for entropy loss
+        value_optimization_epochs: no of epochs for value model
+        value_optimizer: value optimizer -> adam
+        value_sample_ratio: no of trajectory to take for training
+        value_clip_range: clipping parameter of value model loss
+        value_model_max_grad_norm: maximum norm tolerance of value optimization
+        value_stopping_mse: tolerance for trainig of value net
+        gamma: discount factor
+        lambda_: TD_lambda method factor
+        r_1: coefficient for reward function
+        r_2: coefficient for reward function
+        sample: number of ppo iteration
+        n_sensor: no of patches at the surface of cylinder
+        EPS: Tolerance for std
+        evaluation_score: evaluation score for post processing results
 
-class PPO:
-    def __init__(self,
-                 policy_model_fn,
-                 policy_model_max_grad_norm,
-                 policy_optimizer_fn,
-                 policy_optimizer_lr,
-                 policy_optimization_epochs,
-                 policy_sample_ratio,
-                 policy_clip_range,
-                 policy_stopping_kl,
-                 value_model_fn,
-                 value_model_max_grad_norm,
-                 value_optimizer_fn,
-                 value_optimizer_lr,
-                 value_optimization_epochs,
-                 value_sample_ratio,
-                 value_clip_range,
-                 value_stopping_mse,
-                 episode_buffer_fn,
-                 max_buffer_episodes,
-                 max_buffer_episode_steps,
-                 entropy_loss_weight,
-                 tau,
-                 n_workers):
-        assert n_workers > 1
-        assert max_buffer_episodes >= n_workers
+    Returns: trajectory running time and time to run one iteration of ppo main algorithm
 
-        self.policy_model_fn = policy_model_fn
-        self.policy_model_max_grad_norm = policy_model_max_grad_norm
-        self.policy_optimizer_fn = policy_optimizer_fn
-        self.policy_optimizer_lr = policy_optimizer_lr
-        self.policy_optimization_epochs = policy_optimization_epochs
-        self.policy_sample_ratio = policy_sample_ratio
-        self.policy_clip_range = policy_clip_range
-        self.policy_stopping_kl = policy_stopping_kl
+    """
+    # starting time to calculate time of trajectory run and each iteration of main algorithm
+    # getting variable for ppo algorithm from reply_buffer.py
+    traj_start_time = time.perf_counter()
+    states, actions, rewards, returns, logpas = fill_buffer(env, sample, n_sensor, gamma, r_1, r_2)
+    traj_time = (time.perf_counter() - traj_start_time)
 
-        self.value_model_fn = value_model_fn
-        self.value_model_max_grad_norm = value_model_max_grad_norm
-        self.value_optimizer_fn = value_optimizer_fn
-        self.value_optimizer_lr = value_optimizer_lr
-        self.value_optimization_epochs = value_optimization_epochs
-        self.value_sample_ratio = value_sample_ratio
-        self.value_clip_range = value_clip_range
-        self.value_stopping_mse = value_stopping_mse
+    # get V_pi for the state values
+    values_pi = value_model(states).detach().numpy()
 
-        self.episode_buffer_fn = episode_buffer_fn
-        self.max_buffer_episodes = max_buffer_episodes
-        self.max_buffer_episode_steps = max_buffer_episode_steps
+    # compute GAEs of taken actions and the obtained rewards
+    gaes = calculate_gaes(values_pi, rewards, gamma, lambda_)
 
-        self.entropy_loss_weight = entropy_loss_weight
-        self.tau = tau
-        self.n_workers = n_workers
+    gaes = (gaes - gaes.mean()) / (gaes.std() + EPS)
 
-    def optimize_model(self):
+    # no of trajectories
+    n_samples = len(actions)
 
-        # getting variables from communication of environment
-        states, actions, returns, gaes, logpas = self.episode_buffer.get_stacks()
+    for q in range(policy_optimization_epochs):
 
-        # Value to calculate ratio, later value will be changed so for phi_old
-        values = self.value_model(states).detach()
+        # ramdom selection of trajectories from the reply buffer
+        batch_size = int(policy_sample_ratio * n_samples)
+        batch_idxs = np.random.choice(n_samples, batch_size, replace=False)
 
-        # GAE for actor and critic loss
-        gaes = (gaes - gaes.mean()) / (gaes.std() + EPS)
+        # get the data for chosen random  selected trajectory
+        states_batch = states[batch_idxs]
+        actions_batch = actions[batch_idxs]
+        gaes_batch = gaes[batch_idxs]
+        logpas_batch = logpas[batch_idxs]
 
-        n_samples = len(actions)
+        # log probabilities and entropy for randomly chosen trajectory
+        logpas_pred, entropies_pred = policy_model.get_predictions(states_batch[:, :-1, :], actions_batch)
 
-        for _ in range(self.policy_optimization_epochs):
+        # ratio of log probability to calculate the loss and clipping of policy loss
+        # compute entropy loss
+        ratios = (logpas_pred - torch.from_numpy(logpas_batch)).exp()
+        pi_obj = torch.from_numpy(gaes_batch) * ratios
+        pi_obj_clipped = torch.from_numpy(gaes_batch) * ratios.clamp(1.0 - policy_clip_range, 1.0 + policy_clip_range)
+        policy_loss = -torch.min(pi_obj, pi_obj_clipped).mean()
+        entropy_loss = -entropies_pred.mean() * entropy_loss_weight
 
-            # selection of sample od trajectories from experience replay
-            batch_size = int(self.policy_sample_ratio * n_samples)
-            batch_idxs = np.random.choice(n_samples, batch_size, replace=False)
-            states_batch = states[batch_idxs]
-            actions_batch = actions[batch_idxs]
-            gaes_batch = gaes[batch_idxs]
-            logpas_batch = logpas[batch_idxs]
+        # total loss (entropy loss + policy loss) back propagation
+        policy_optimizer.zero_grad()
+        (policy_loss + entropy_loss).backward()
+        torch.nn.utils.clip_grad_norm_(policy_model.parameters(), policy_model_max_grad_norm)
+        policy_optimizer.step()
 
-            # theta_new to calculate ratio of actor loss
-            logpas_pred, entropies_pred = self.policy_model.get_predictions(states_batch,
-                                                                            actions_batch)
-            # ratio and actor loss with entropy
-            ratios = (logpas_pred - logpas_batch).exp()
-            pi_obj = gaes_batch * ratios
-            pi_obj_clipped = gaes_batch * ratios.clamp(1.0 - self.policy_clip_range,
-                                                       1.0 + self.policy_clip_range)
-            policy_loss = -torch.min(pi_obj, pi_obj_clipped).mean()
-            entropy_loss = -entropies_pred.mean() * self.entropy_loss_weight
+        # checking for optimization in range of tolerance
+        with torch.no_grad():
+            logpas_pred_all, _ = policy_model.get_predictions(states[:, :-1, :], actions)
+            kl = (torch.from_numpy(logpas) - logpas_pred_all).mean()
+            if kl.item() > policy_stopping_kl:
+                print(f'kl smaller than tolrence, {q} and {kl.item()}')
+                break
 
-            # policy loss back propogation
-            self.policy_optimizer.zero_grad()
-            (policy_loss + entropy_loss).backward()
-            torch.nn.utils.clip_grad_norm_(self.policy_model.parameters(),
-                                           self.policy_model_max_grad_norm)
-            self.policy_optimizer.step()
+    model_trace_update(policy_model, sample)
 
-            with torch.no_grad():
-                logpas_pred_all, _ = self.policy_model.get_predictions(states, actions)
-                kl = (logpas - logpas_pred_all).mean()
-                if kl.item() > self.policy_stopping_kl:
-                    break
+    for _ in range(value_optimization_epochs):
 
-        for _ in range(self.value_optimization_epochs):
+        # ramdom selection of trajectories from the reply buffer
+        batch_size = int(value_sample_ratio * n_samples)
+        batch_idxs = np.random.choice(n_samples, batch_size, replace=False)
 
-            # selection of sample od trajectories from experience replay
-            batch_size = int(self.value_sample_ratio * n_samples)
-            batch_idxs = np.random.choice(n_samples, batch_size, replace=False)
-            states_batch = states[batch_idxs]
-            returns_batch = returns[batch_idxs]
-            values_batch = values[batch_idxs]
+        # get the data for chosen random  selected trajectory
+        states_batch = states[batch_idxs]
+        returns_batch = returns[batch_idxs]
+        values_batch = values_pi[batch_idxs]
 
-            # theta_new to calculate ratio of actor loss
-            values_pred = self.value_model(states_batch)
-            values_pred_clipped = values_batch + (values_pred - values_batch).clamp(-self.value_clip_range,
-                                                                                    self.value_clip_range)
+        # getting V_pi for randomly selected trajectories in reply buffer
+        values_pred = value_model(states_batch)
+        values_pred_clipped = torch.from_numpy(values_batch) + (values_pred - torch.from_numpy(values_batch)).clamp(
+            -value_clip_range, value_clip_range)
 
-            # critic loss
-            v_loss = (returns_batch - values_pred).pow(2)
-            v_loss_clipped = (returns_batch - values_pred_clipped).pow(2)
-            value_loss = torch.max(v_loss, v_loss_clipped).mul(0.5).mean()
+        # critic loss
+        v_loss = (torch.from_numpy(returns_batch) - values_pred).pow(2)
+        v_loss_clipped = (torch.from_numpy(returns_batch) - values_pred_clipped).pow(2)
+        value_loss = torch.max(v_loss, v_loss_clipped).mul(0.5).mean()
 
-            # critic loss optimization
-            self.value_optimizer.zero_grad()
-            value_loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.value_model.parameters(),
-                                           self.value_model_max_grad_norm)
-            self.value_optimizer.step()
+        # critic loss optimization
+        value_optimizer.zero_grad()
+        value_loss.backward()
+        torch.nn.utils.clip_grad_norm_(value_model.parameters(), value_model_max_grad_norm)
+        value_optimizer.step()
 
-            with torch.no_grad():
-                values_pred_all = self.value_model(states)
-                mse = (values - values_pred_all).pow(2).mul(0.5).mean()
-                if mse.item() > self.value_stopping_mse:
-                    break
+        # checking for optimization in range of tolerance
+        with torch.no_grad():
+            values_pred_all = value_model(states)
+            mse = (torch.from_numpy(values_pi) - values_pred_all).pow(2).mul(0.5).mean()
+            if mse.item() > value_stopping_mse:
+                print(f'mse smaller than tolrence, {_}, {mse.item}')
+                break
 
-    def train(self, make_envs_fn, make_env_fn, make_env_kargs, seed, gamma, max_minutes, max_episodes,
-              goal_mean_100_reward):
+    # computation time to complete one iteration of main PPO algorithm
+    epoch_time = (time.perf_counter() - traj_start_time)
 
-        training_start, last_debug_time = time.time(), float('-inf')
+    # evaluation score at the end of iteration
+    score = evaluate_score(rewards, sample)
+    evaluation_score.append(score)
 
-        self.checkpoint_dir = tempfile.mkdtemp()
-        self.make_envs_fn = make_envs_fn
-        self.make_env_fn = make_env_fn
-        self.make_env_kargs = make_env_kargs
-        self.seed = seed
-        self.gamma = gamma
-
-        env = self.make_env_fn(**self.make_env_kargs, seed=self.seed)
-        envs = self.make_envs_fn(make_env_fn, make_env_kargs, self.seed, self.n_workers)
-        torch.manual_seed(self.seed);
-        np.random.seed(self.seed);
-        random.seed(self.seed)
-
-        nS, nA = env.observation_space.shape, env.action_space.n
-        self.episode_timestep, self.episode_reward = [], []
-        self.episode_seconds, self.episode_exploration = [], []
-        self.evaluation_scores = []
-
-        self.policy_model = self.policy_model_fn(nS, nA)
-        self.policy_optimizer = self.policy_optimizer_fn(self.policy_model, self.policy_optimizer_lr)
-
-        self.value_model = self.value_model_fn(nS)
-        self.value_optimizer = self.value_optimizer_fn(self.value_model, self.value_optimizer_lr)
-
-        self.episode_buffer = self.episode_buffer_fn(nS, self.gamma, self.tau,
-                                                     self.n_workers,
-                                                     self.max_buffer_episodes,
-                                                     self.max_buffer_episode_steps)
-
-        result = np.empty((max_episodes, 5))
-        result[:] = np.nan
-        training_time = 0
-        episode = 0
-
-        # collect n_steps rollout
-        while True:
-            episode_timestep, episode_reward, episode_exploration, \
-            episode_seconds = self.episode_buffer.fill(envs, self.policy_model, self.value_model)
-
-            n_ep_batch = len(episode_timestep)
-            self.episode_timestep.extend(episode_timestep)
-            self.episode_reward.extend(episode_reward)
-            self.episode_exploration.extend(episode_exploration)
-            self.episode_seconds.extend(episode_seconds)
-            self.optimize_model()
-            self.episode_buffer.clear()
+    return traj_time, epoch_time

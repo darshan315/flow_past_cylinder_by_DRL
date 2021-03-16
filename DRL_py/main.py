@@ -1,93 +1,100 @@
+"""
+    Main file to execute PPO algorithm
+"""
+
 import torch.optim as optim
-import numpy as np
-import os.path
-import os
 from ppo import *
 from network import *
-from episode_buffer import *
 
-LEAVE_PRINT_EVERY_N_SECS = 300
-ERASE_LINE = '\x1b[2K'
+# tolerance for std
 EPS = 1e-6
-BEEP = lambda: os.system("printf '\a'")
-RESULTS_DIR = os.path.join('..', 'results')
-SEEDS = (12, 34, 56, 78, 90)
 
-ppo_results = []
-best_agent, best_eval_score = None, float('-inf')
-for seed in SEEDS:
-    environment_settings = {
-        'env_name': 'LunarLander-v2',
-        'gamma': 0.99,
-        'max_minutes': 20,
-        'max_episodes': 2000,
-        'goal_mean_100_reward': 200
-    }
+# discount function
+gamma = 0.99
+# TD_lambda method factor
+lambda_ = 0.97
+# no of patches at the surface of cylinder
+n_sensor = 54
 
-    policy_model_fn = lambda nS, nA: FCCA(nS, nA, hidden_dims=(64,64))
-    policy_model_max_grad_norm = float('inf')
-    policy_optimizer_fn = lambda net, lr: optim.Adam(net.parameters(), lr=lr)
-    policy_optimizer_lr = 0.0003
-    policy_optimization_epochs = 80
-    policy_sample_ratio = 0.8
-    policy_clip_range = 0.1
-    policy_stopping_kl = 0.02
+# coefficients for reward function
+r_1 = 3
+r_2 = 0.1
 
-    value_model_fn = lambda nS: FCV(nS, hidden_dims=(256,256))
-    value_model_max_grad_norm = float('inf')
-    value_optimizer_fn = lambda net, lr: optim.Adam(net.parameters(), lr=lr)
-    value_optimizer_lr = 0.0005
-    value_optimization_epochs = 80
-    value_sample_ratio = 0.8
-    value_clip_range = float('inf')
-    value_stopping_mse = 25
+# policy model and value model instances
+policy_model = FCCA((n_sensor, 1))
+value_model = FCV((n_sensor, 1))
 
-    episode_buffer_fn = lambda sd, g, t, nw, me, mes: EpisodeBuffer(sd, g, t, nw, me, mes)
-    max_buffer_episodes = 16
-    max_buffer_episode_steps = 1000
+# no of workers
+n_worker = 1
+# no of total buffer size
+buffer_size = 2
+# range to randomly start control
+control_between = [0.1, 4]
+# env instance
+env = env(n_worker, buffer_size, control_between)
 
-    entropy_loss_weight = 0.01
-    tau = 0.97
-    n_workers = 8
+# learning rate for policy model and value model
+policy_lr = 0.006
+value_lr = 0.003
 
-    env_name, gamma, max_minutes, \
-    max_episodes, goal_mean_100_reward = environment_settings.values()
-    agent = PPO(policy_model_fn,
-                policy_model_max_grad_norm,
-                policy_optimizer_fn,
-                policy_optimizer_lr,
+# policy optimizer
+policy_optimizer = optim.Adam(policy_model.parameters(), policy_lr)
+# no of epochs for value model
+policy_optimization_epochs = 80
+# ration for no of trajectory to take for training (1 = 100%)
+policy_sample_ratio = 1
+# clipping parameter of policy loss
+policy_clip_range = 0.1
+# maximum norm tolerance of policy optimization
+policy_model_max_grad_norm = float('inf')
+# tolerance for training of policy net
+policy_stopping_kl = 0.2
+# factor for entropy loss
+entropy_loss_weight = 0.01
+
+# value optimizer
+value_optimizer = optim.Adam(value_model.parameters(), policy_lr)
+# no of epochs for value model
+value_optimization_epochs = 80
+# ration for no of trajectory to take for training (1 = 100%)
+value_sample_ratio = 1
+# clipping parameter of value model loss
+value_clip_range = float('inf')
+# maximum norm tolerance of value optimization
+value_model_max_grad_norm = float('inf')
+# tolerance for trainig of value net
+value_stopping_mse = 25
+
+# main PPO algorithm iteration
+main_ppo_iteration = 15
+
+evaluation_score = []
+
+# iteration for PPO algorithm
+for i in range(main_ppo_iteration):
+    sample = i
+    train_model(value_model,
+                policy_model,
+                env,
+                policy_optimizer,
                 policy_optimization_epochs,
                 policy_sample_ratio,
                 policy_clip_range,
+                policy_model_max_grad_norm,
                 policy_stopping_kl,
-                value_model_fn,
-                value_model_max_grad_norm,
-                value_optimizer_fn,
-                value_optimizer_lr,
+                entropy_loss_weight,
                 value_optimization_epochs,
+                value_optimizer,
                 value_sample_ratio,
                 value_clip_range,
+                value_model_max_grad_norm,
                 value_stopping_mse,
-                episode_buffer_fn,
-                max_buffer_episodes,
-                max_buffer_episode_steps,
-                entropy_loss_weight,
-                tau,
-                n_workers)
-
-    make_envs_fn = lambda mef, mea, s, n: MultiprocessEnv(mef, mea, s, n)
-    make_env_fn, make_env_kargs = get_make_env_fn(env_name=env_name)
-    result, final_eval_score, training_time, wallclock_time = agent.train(make_envs_fn,
-                                                                          make_env_fn,
-                                                                          make_env_kargs,
-                                                                          seed,
-                                                                          gamma,
-                                                                          max_minutes,
-                                                                          max_episodes,
-                                                                          goal_mean_100_reward)
-    ppo_results.append(result)
-    if final_eval_score > best_eval_score:
-        best_eval_score = final_eval_score
-        best_agent = agent
-ppo_results = np.array(ppo_results)
-_ = BEEP()
+                gamma,
+                lambda_,
+                r_1,
+                r_2,
+                sample,
+                n_sensor,
+                EPS,
+                evaluation_score)
+    print(f'The Iteration {sample} is completed')
