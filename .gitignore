@@ -49,5 +49,5 @@ DRL_py/env/initial_setup/
 DRL_py/env/sample_1/
 overleaf/
 presentation/
-DRL_py/env/sample_0/*
-
+DRL_py/env/*
+DRL_py/results/

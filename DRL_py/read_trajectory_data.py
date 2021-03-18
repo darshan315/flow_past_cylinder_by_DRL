@@ -36,7 +36,7 @@ def read_data_from_trajectory(traj_files):
     # read force coefficients
     names_coeffs = ["col{:d}".format(i) for i in range(13)]
 
-    # we only want time, drag, and lift
+    # time, drag, and lift
     names_coeffs[0] = "t"
     names_coeffs[1] = "c_d"
     names_coeffs[3] = "c_l"
@@ -48,8 +48,15 @@ def read_data_from_trajectory(traj_files):
     # for some reason the function object's writeControls do not work properly; therefore,
     # we pick only every nth row from the dataframe; this number should be the same as for
     # the trajectory (specified in the boundary condition)
-    pick_every = 20
-    coeffs = coeffs[coeffs.index % pick_every == 0]
+
+    # setting for delayed start(unexpected behavior of StartTime)
+    if abs(trajectory.t.values[0].round(5) - trajectory.t.values[0].round(2)) >= 1e-5:
+        pick_every = 20
+        coeffs = coeffs[(coeffs.index - 1) % pick_every == 0]
+    else:
+        pick_every = 20
+        coeffs = coeffs[coeffs.index % pick_every == 0]
+
 
     # return values: Two Dataframes
     return coeffs, trajectory, p_names

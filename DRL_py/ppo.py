@@ -72,7 +72,7 @@ def train_model(value_model,
     traj_time = (time.perf_counter() - traj_start_time)
 
     # get V_pi for the state values
-    values_pi = value_model(states).detach().numpy()
+    values_pi = value_model(torch.from_numpy(states)).squeeze().detach().numpy()
 
     # compute GAEs of taken actions and the obtained rewards
     gaes = calculate_gaes(values_pi, rewards, gamma, lambda_)
@@ -133,7 +133,7 @@ def train_model(value_model,
         values_batch = values_pi[batch_idxs]
 
         # getting V_pi for randomly selected trajectories in reply buffer
-        values_pred = value_model(states_batch)
+        values_pred = value_model(torch.from_numpy(states_batch)).squeeze()
         values_pred_clipped = torch.from_numpy(values_batch) + (values_pred - torch.from_numpy(values_batch)).clamp(
             -value_clip_range, value_clip_range)
 
@@ -150,7 +150,7 @@ def train_model(value_model,
 
         # checking for optimization in range of tolerance
         with torch.no_grad():
-            values_pred_all = value_model(states)
+            values_pred_all = value_model(torch.from_numpy(states)).squeeze()
             mse = (torch.from_numpy(values_pi) - values_pred_all).pow(2).mul(0.5).mean()
             if mse.item() > value_stopping_mse:
                 print(f'mse smaller than tolrence, {_}, {mse.item}')

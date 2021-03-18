@@ -21,8 +21,8 @@ r_1 = 3
 r_2 = 0.1
 
 # policy model and value model instances
-policy_model = FCCA((n_sensor, 1))
-value_model = FCV((n_sensor, 1))
+policy_model = FCCA(n_sensor, 64)
+value_model = FCV(n_sensor, 64)
 
 # no of workers
 n_worker = 1
@@ -66,7 +66,7 @@ value_model_max_grad_norm = float('inf')
 value_stopping_mse = 25
 
 # main PPO algorithm iteration
-main_ppo_iteration = 15
+main_ppo_iteration = 3
 
 evaluation_score = []
 

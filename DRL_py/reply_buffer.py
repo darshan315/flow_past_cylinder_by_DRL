@@ -40,7 +40,7 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
     """
 
     # to sample the trajecties
-    # env.sample_trajectories(sample)
+    env.sample_trajectories(sample)
 
     traj_files = glob(f'./env/sample_{sample}' + "/*/")
 

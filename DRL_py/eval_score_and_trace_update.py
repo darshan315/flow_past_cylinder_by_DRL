@@ -46,14 +46,14 @@ def evaluate_score(rewards, sample):
     # to save the list in Disc memory for later post processing -> 'results/evaluation/evaluation_0.npy'
     path = 'results/evaluation'
     os.makedirs(path, exist_ok=True)
-    np.save(path + f'/evalutions_{sample}.npy', evaluations)
+    np.save(path + f'/evaluations_{sample}.npy', evaluations)
 
     return evaluations
 
 
 def model_trace_update(model, sample):
     """
-    This fuction is update traced policy model for to use by OpenFOAM to rotate the cylinder
+    This function is update traced policy model for to use by OpenFOAM to rotate the cylinder
     at certain angular velocity at every 20 time steps, sampled by model
 
     Args:
