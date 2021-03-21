@@ -66,7 +66,7 @@ class FCCA(nn.Module):
 
         # get mean and std of action for the supplied state
         output_layer = self.forward(torch.from_numpy(states))
-        mean_ac, std_ac = output_layer[0].transpose(0, 1), output_layer[1].transpose(0, 1)
+        mean_ac, std_ac = output_layer[:, :, 0], output_layer[:, :, 1]
         mean_ac = mean_ac.squeeze()
         std_ac = std_ac.squeeze()
         # get distribution from mean and std by feed forward
@@ -109,6 +109,6 @@ class FCV(nn.Module):
         Returns: Tensor of an state value(value is pi_theta)
 
         """
-        x = torch.nn.functional.relu(self.linear_0(x))
-        x = torch.nn.functional.relu(self.linear_1(x))
+        x = F.relu(self.linear_0(x))
+        x = F.relu(self.linear_1(x))
         return self.linear_2(x)

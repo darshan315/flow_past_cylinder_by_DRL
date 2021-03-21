@@ -27,7 +27,7 @@ value_model = FCV(n_sensor, 64)
 # no of workers
 n_worker = 1
 # no of total buffer size
-buffer_size = 2
+buffer_size = 3
 # range to randomly start control
 control_between = [0.1, 4]
 # env instance
@@ -66,7 +66,7 @@ value_model_max_grad_norm = float('inf')
 value_stopping_mse = 25
 
 # main PPO algorithm iteration
-main_ppo_iteration = 3
+main_ppo_iteration = 10
 
 evaluation_score = []
 

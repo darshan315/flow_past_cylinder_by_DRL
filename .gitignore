@@ -51,3 +51,5 @@ overleaf/
 presentation/
 DRL_py/env/*
 DRL_py/results/
+DRL_py/env/base_case/agentRotatingWallVelocity/policy.pt
+DRL_py/results.png

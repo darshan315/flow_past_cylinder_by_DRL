@@ -50,7 +50,10 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
 
     # To extract the length of trajectories
     t_traj = pd.read_csv(traj_files[0] + "trajectory.csv", sep=",", header=0)
-    n_T = len(t_traj.t.values)
+
+    # due to delayed starting behaviour the time steps set to explicit -> length of trajectory
+    # n_T = len(t_traj.t.values)
+    n_T = 500
 
     # buffer initialization
     state_buffer = np.zeros((n_traj, n_T, n_sensor))
@@ -78,10 +81,10 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
         log_probs = log_probs_[:-1]
 
         # appending values in buffer
-        state_buffer[i] = states
-        action_buffer[i] = actions
-        reward_buffer[i] = rewards
-        return_buffer[i] = returns
-        log_prob_buffer[i] = log_probs
+        state_buffer[i] = states[:n_T, :]
+        action_buffer[i] = actions[:n_T-1]
+        reward_buffer[i] = rewards[:n_T]
+        return_buffer[i] = returns[:n_T]
+        log_prob_buffer[i] = log_probs[:n_T-1]
 
     return state_buffer, action_buffer, reward_buffer, return_buffer, log_prob_buffer
