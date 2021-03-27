@@ -152,9 +152,13 @@ def train_model(value_model,
         with torch.no_grad():
             values_pred_all = value_model(torch.from_numpy(states)).squeeze()
             mse = (torch.from_numpy(values_pi) - values_pred_all).pow(2).mul(0.5).mean()
+            print(mse.item())
             if mse.item() > value_stopping_mse:
                 print(f'mse smaller than tolrence, {_}, {mse.item}')
                 break
+
+    # saving value model
+    saving_value_model(value_model, sample)
 
     # computation time to complete one iteration of main PPO algorithm
     epoch_time = (time.perf_counter() - traj_start_time)

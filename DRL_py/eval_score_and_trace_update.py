@@ -79,3 +79,12 @@ def model_trace_update(model, sample):
 
     # saving model to openFOAM dirs
     os.system(f"cp {path}/policy_{sample}.pt {base_path}/policy.pt")
+
+
+def saving_value_model(model, sample):
+    """
+		This function saves value model at the end of every epoch.
+	"""
+    path = "results/value_models"
+    os.makedirs(path, exist_ok=True)
+    torch.save(model.state_dict(), path + f"/value_{sample}.pt")

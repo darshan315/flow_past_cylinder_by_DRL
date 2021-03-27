@@ -24,6 +24,14 @@ r_2 = 0.1
 policy_model = FCCA(n_sensor, 64)
 value_model = FCV(n_sensor, 64)
 
+# to retrain model from checkpoint
+retrain_models = False
+
+if retrain_models:
+    path = 'retain_models/'
+    policy_model = torch.jit.load("policy.pt")
+    value_model = value_model.load_state_dict(torch.load('value_model.pth'))
+
 # no of workers
 n_worker = 1
 # no of total buffer size
@@ -69,32 +77,39 @@ value_stopping_mse = 25
 main_ppo_iteration = 10
 
 evaluation_score = []
+trj_time = []
+epoch_time = []
 
 # iteration for PPO algorithm
 for i in range(main_ppo_iteration):
     sample = i
-    train_model(value_model,
-                policy_model,
-                env,
-                policy_optimizer,
-                policy_optimization_epochs,
-                policy_sample_ratio,
-                policy_clip_range,
-                policy_model_max_grad_norm,
-                policy_stopping_kl,
-                entropy_loss_weight,
-                value_optimization_epochs,
-                value_optimizer,
-                value_sample_ratio,
-                value_clip_range,
-                value_model_max_grad_norm,
-                value_stopping_mse,
-                gamma,
-                lambda_,
-                r_1,
-                r_2,
-                sample,
-                n_sensor,
-                EPS,
-                evaluation_score)
+    trj_t, epoch_t = train_model(value_model,
+                                 policy_model,
+                                 env,
+                                 policy_optimizer,
+                                 policy_optimization_epochs,
+                                 policy_sample_ratio,
+                                 policy_clip_range,
+                                 policy_model_max_grad_norm,
+                                 policy_stopping_kl,
+                                 entropy_loss_weight,
+                                 value_optimization_epochs,
+                                 value_optimizer,
+                                 value_sample_ratio,
+                                 value_clip_range,
+                                 value_model_max_grad_norm,
+                                 value_stopping_mse,
+                                 gamma,
+                                 lambda_,
+                                 r_1,
+                                 r_2,
+                                 sample,
+                                 n_sensor,
+                                 EPS,
+                                 evaluation_score)
+    trj_time.append(trj_t)
+    epoch_time.append(epoch_t)
     print(f'The Iteration {sample} is completed')
+
+np.save('traj_time.npy', trj_time)
+np.save('epochs_time.npy', epoch_time)

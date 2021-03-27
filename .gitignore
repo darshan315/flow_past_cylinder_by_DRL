@@ -53,3 +53,14 @@ DRL_py/env/*
 DRL_py/results/
 DRL_py/env/base_case/agentRotatingWallVelocity/policy.pt
 DRL_py/results.png
+notebooks/mesh_dp_cd400.png
+notebooks/mesh_dp_cl400.png
+notebooks/sinefit_cd_sc (copy).png
+notebooks/sinefit_cd_sc.png
+notebooks/sinefit_cl_sc (copy).png
+notebooks/sinefit_cl_sc.png
+DRL_py/r_plot_results.py
+DRL_py/results_25_15.png
+DRL_py/model_cluste_policy.pt
+DRL_py/python_drl.sif
+
