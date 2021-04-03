@@ -28,9 +28,11 @@ value_model = FCV(n_sensor, 64)
 retrain_models = False
 
 if retrain_models:
-    path = 'retain_models/'
-    policy_model = torch.jit.load("policy.pt")
-    value_model = value_model.load_state_dict(torch.load('value_model.pth'))
+    path = 'retrain_models/'
+    policy_model = torch.jit.load(path + "policy.pt")
+    print(f"policy model model loaded from {path}")
+    value_model.load_state_dict(torch.load(path+'value.pt'))
+    print(f"value model model loaded from {path}")
 
 # no of workers
 n_worker = 1

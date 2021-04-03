@@ -57,6 +57,5 @@ def read_data_from_trajectory(traj_files):
         pick_every = 20
         coeffs = coeffs[coeffs.index % pick_every == 0]
 
-
     # return values: Two Dataframes
     return coeffs, trajectory, p_names

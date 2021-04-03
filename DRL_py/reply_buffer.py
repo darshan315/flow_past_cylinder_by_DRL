@@ -5,9 +5,9 @@
     called in :  ppo.py
 """
 
-from glob import glob
 from read_trajectory_data import *
 from cal_R_gaes import *
+from check_traj import *
 
 # If machine = 'local' then the functions from env_local will be imported
 # If machine = 'cluster' then the functions from env_cluster will be imported
@@ -41,6 +41,9 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
 
     # to sample the trajecties
     env.sample_trajectories(sample)
+
+    # check the trajectory to be completed
+    check_trajectories(sample)
 
     traj_files = glob(f'./env/sample_{sample}' + "/*/")
 
