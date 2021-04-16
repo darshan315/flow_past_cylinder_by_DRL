@@ -30,6 +30,8 @@ def train_model(value_model,
                 lambda_,
                 r_1,
                 r_2,
+                r_3,
+                r_4,
                 sample,
                 n_sensor,
                 EPS,
@@ -57,6 +59,8 @@ def train_model(value_model,
         lambda_: TD_lambda method factor
         r_1: coefficient for reward function
         r_2: coefficient for reward function
+        r_3 coefficient for reward function
+        r_4: coefficient for reward function
         sample: number of ppo iteration
         n_sensor: no of patches at the surface of cylinder
         EPS: Tolerance for std
@@ -68,7 +72,7 @@ def train_model(value_model,
     # starting time to calculate time of trajectory run and each iteration of main algorithm
     # getting variable for ppo algorithm from reply_buffer.py
     traj_start_time = time.perf_counter()
-    states, actions, rewards, returns, logpas = fill_buffer(env, sample, n_sensor, gamma, r_1, r_2)
+    states, actions, rewards, returns, logpas = fill_buffer(env, sample, n_sensor, gamma, r_1, r_2, r_3, r_4)
     traj_time = (time.perf_counter() - traj_start_time)
 
     # get V_pi for the state values
@@ -121,7 +125,7 @@ def train_model(value_model,
 
     model_trace_update(policy_model, sample)
 
-    for _ in range(value_optimization_epochs):
+    for q in range(value_optimization_epochs):
 
         # ramdom selection of trajectories from the reply buffer
         batch_size = int(value_sample_ratio * n_samples)
@@ -152,9 +156,8 @@ def train_model(value_model,
         with torch.no_grad():
             values_pred_all = value_model(torch.from_numpy(states)).squeeze()
             mse = (torch.from_numpy(values_pi) - values_pred_all).pow(2).mul(0.5).mean()
-            print(mse.item())
             if mse.item() > value_stopping_mse:
-                print(f'mse smaller than tolrence, {_}, {mse.item}')
+                print(f'mse smaller than tolrence, {q}, {mse.item}')
                 break
 
     # saving value model

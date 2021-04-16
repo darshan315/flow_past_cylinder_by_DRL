@@ -9,12 +9,14 @@
 import numpy as np
 
 
-def calculate_rewards_returns(r_1, r_2, coeff_data, gamma):
+def calculate_rewards_returns(r_1, r_2, r_3, r_4, coeff_data, gamma, theta_, d_theta):
     """
     To compute the rewards and returns from the sampled trajectory.
     Args:
         r_1: coefficient of reward function
         r_2: coefficient of reward function
+        r_3: coefficient for reward function
+        r_4: coefficient for reward function
         coeff_data: csv dataframe from trajectory containing data of c_d and c_l
         gamma: discount factor
 
@@ -26,7 +28,7 @@ def calculate_rewards_returns(r_1, r_2, coeff_data, gamma):
     c_l = coeff_data.c_l.values
 
     # reward function to compute rewards
-    rewards = r_1 - (c_d + r_2 * abs(c_l))
+    rewards = r_1 - (c_d + r_2 * abs(c_l) + r_3 * theta_ + r_4 * d_theta)
 
     # length of an reward array -> length of a trajectory
     T = len(rewards)

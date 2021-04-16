@@ -11,7 +11,7 @@ from check_traj import *
 
 # If machine = 'local' then the functions from env_local will be imported
 # If machine = 'cluster' then the functions from env_cluster will be imported
-machine = 'local'
+machine = 'cluster'
 
 if machine == 'local':
     from env_local import *
@@ -22,7 +22,7 @@ else:
     assert machine
 
 
-def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
+def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2, r_3, r_4):
     """
     This function is to sample trajectory and get states, actions, probabilities, rewards,
     and to calculate returns.
@@ -34,6 +34,8 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
         gamma: discount factor
         r_1: coefficient for reward function
         r_2: coefficient for reward function
+        r_3: coefficient for reward function
+        r_4: coefficient for reward function
 
     Returns: arrays of, states, actions, rewards, returns, probabilities
 
@@ -41,7 +43,7 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
 
     # to sample the trajecties
     env.sample_trajectories(sample)
-
+    
     # check the trajectory to be completed
     check_trajectories(sample)
 
@@ -75,9 +77,13 @@ def fill_buffer(env, sample, n_sensor, gamma, r_1, r_2):
         # action values from data frame
         actions_ = trajectory_data.omega.values
         actions = actions_[:-1]
+        
+        # rotation rate
+        theta_ = trajectory_data.theta_sum.values
+        d_theta = trajectory_data.dt_theta_sum.values
 
         # rewards and returns from cal_R_gaes.py -> calculate_rewards_returns
-        rewards, returns = calculate_rewards_returns(r_1, r_2, coeff_data, gamma)
+        rewards, returns = calculate_rewards_returns(r_1, r_2, r_3, r_4, coeff_data, gamma, theta_, d_theta)
 
         # log_probs from data frame
         log_probs_ = trajectory_data.log_p.values

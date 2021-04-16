@@ -18,28 +18,30 @@ n_sensor = 54
 
 # coefficients for reward function
 r_1 = 3
-r_2 = 0.1
+r_2 = 0.05
+r_3 = 0.01
+r_4 = 0.0005
 
 # policy model and value model instances
-policy_model = FCCA(n_sensor, 64)
-value_model = FCV(n_sensor, 64)
+policy_model = FCCA(n_sensor, 128)
+value_model = FCV(n_sensor, 128)
 
 # to retrain model from checkpoint
 retrain_models = False
 
 if retrain_models:
-    path = 'retrain_models/'
-    policy_model = torch.jit.load(path + "policy.pt")
+    path = 'retain_models/'
+    policy_model = torch.jit.load(path+"policy.pt")
     print(f"policy model model loaded from {path}")
-    value_model.load_state_dict(torch.load(path+'value.pt'))
+    value_model = value_model.load_state_dict(torch.load(path+'value.pt'))
     print(f"value model model loaded from {path}")
 
 # no of workers
-n_worker = 1
+n_worker = 10
 # no of total buffer size
-buffer_size = 3
+buffer_size = 10
 # range to randomly start control
-control_between = [0.1, 4]
+control_between = [0.1, 2]
 # env instance
 env = env(n_worker, buffer_size, control_between)
 
@@ -50,7 +52,7 @@ value_lr = 0.003
 # policy optimizer
 policy_optimizer = optim.Adam(policy_model.parameters(), policy_lr)
 # no of epochs for value model
-policy_optimization_epochs = 80
+policy_optimization_epochs = 50
 # ration for no of trajectory to take for training (1 = 100%)
 policy_sample_ratio = 1
 # clipping parameter of policy loss
@@ -58,14 +60,14 @@ policy_clip_range = 0.1
 # maximum norm tolerance of policy optimization
 policy_model_max_grad_norm = float('inf')
 # tolerance for training of policy net
-policy_stopping_kl = 0.2
+policy_stopping_kl = 5
 # factor for entropy loss
 entropy_loss_weight = 0.01
 
 # value optimizer
 value_optimizer = optim.Adam(value_model.parameters(), policy_lr)
 # no of epochs for value model
-value_optimization_epochs = 80
+value_optimization_epochs = 50
 # ration for no of trajectory to take for training (1 = 100%)
 value_sample_ratio = 1
 # clipping parameter of value model loss
@@ -73,45 +75,40 @@ value_clip_range = float('inf')
 # maximum norm tolerance of value optimization
 value_model_max_grad_norm = float('inf')
 # tolerance for trainig of value net
-value_stopping_mse = 25
+value_stopping_mse = 300
 
 # main PPO algorithm iteration
-main_ppo_iteration = 10
+main_ppo_iteration = 100
 
 evaluation_score = []
-trj_time = []
-epoch_time = []
 
 # iteration for PPO algorithm
 for i in range(main_ppo_iteration):
     sample = i
-    trj_t, epoch_t = train_model(value_model,
-                                 policy_model,
-                                 env,
-                                 policy_optimizer,
-                                 policy_optimization_epochs,
-                                 policy_sample_ratio,
-                                 policy_clip_range,
-                                 policy_model_max_grad_norm,
-                                 policy_stopping_kl,
-                                 entropy_loss_weight,
-                                 value_optimization_epochs,
-                                 value_optimizer,
-                                 value_sample_ratio,
-                                 value_clip_range,
-                                 value_model_max_grad_norm,
-                                 value_stopping_mse,
-                                 gamma,
-                                 lambda_,
-                                 r_1,
-                                 r_2,
-                                 sample,
-                                 n_sensor,
-                                 EPS,
-                                 evaluation_score)
-    trj_time.append(trj_t)
-    epoch_time.append(epoch_t)
-    print(f'The Iteration {sample} is completed')
-
-np.save('traj_time.npy', trj_time)
-np.save('epochs_time.npy', epoch_time)
+    train_model(value_model,
+                policy_model,
+                env,
+                policy_optimizer,
+                policy_optimization_epochs,
+                policy_sample_ratio,
+                policy_clip_range,
+                policy_model_max_grad_norm,
+                policy_stopping_kl,
+                entropy_loss_weight,
+                value_optimization_epochs,
+                value_optimizer,
+                value_sample_ratio,
+                value_clip_range,
+                value_model_max_grad_norm,
+                value_stopping_mse,
+                gamma,
+                lambda_,
+                r_1,
+                r_2,
+                r_3,
+                r_4,
+                sample,
+                n_sensor,
+                EPS,
+                evaluation_score)
+    print(f'The Iteration {sample} is completed \n \n')
