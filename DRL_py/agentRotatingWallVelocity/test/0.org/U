@@ -43,6 +43,7 @@ boundaryField
         interval        20;
         train           true;
         absOmegaMax     0.05;
+        logStdMax       2.0;
     }
 
     "(top|bottom)"
