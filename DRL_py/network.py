@@ -1,92 +1,114 @@
 """
 	This file contains a neural network module for us to
 	define our actor and critic networks in PPO.
+
+	called in main.py
 """
 
 import torch
 from torch import nn
 import torch.nn.functional as F
-import numpy as np
+
+torch.set_default_tensor_type(torch.DoubleTensor)
 
 
 class FCCA(nn.Module):
+    """
+        A standard in_dim-64-64-out_dim Feed Forward Neural Network for policy model(Actor).
+    """
 
-    def __init__(self, input_dim, output_dim, hidden_dims=(64, 64), activation_fc=F.relu):
+    def __init__(self, input_dim, hidden_dims):
+        """
+        The output layer dimensions are 2 neurons. 1st neuron in output layer represents mean value
+        and 2nd neuron in output layer represents std value.
+
+        Args:
+            input_dim: input dimensions are equal to number of pressure sensors
+                        sensors -> p values of patches at surface of cylinder.
+            hidden_dims: 64x64
+            activation_fc: neuron activation function = relu -> torch,nn.functional.F.relu
+        """
         super(FCCA, self).__init__()
-        self.activation_fc = activation_fc
-        self.env_min = 1
-        self.env_max = 1
+        self.linear_0 = torch.nn.Linear(input_dim, hidden_dims)
+        self.linear_1 = torch.nn.Linear(hidden_dims, hidden_dims)
+        self.linear_2 = torch.nn.Linear(hidden_dims, 2)
 
-        self.input_layer = nn.Linear(input_dim[0], hidden_dims[0])
-        self.hidden_layers = nn.ModuleList()
-        for i in range(len(hidden_dims) - 1):
-            hidden_layer = nn.Linear(hidden_dims[i], hidden_dims[i + 1])
-            self.hidden_layers.append(hidden_layer)
-        self.output_layer_mean = nn.Linear(hidden_dims[-1], self.env_max)
-        self.output_layer_log_std = nn.Linear(hidden_dims[-1], self.env_max)
+    def forward(self, x):
+        """
+        Feed forwarding in NN net
 
-    def forward(self, states):
-        x = self._format(states)
-        x = self.activation_fc(self.input_layer(x))
-        for hidden_layer in self.hidden_layers:
-            x = self.activation_fc(hidden_layer(x))
-        x_mean = self.output_layer_mean(x)
-        x_log_std = self.output_layer_log_std(x)
+        Args:
+            x: array or tensor containing value of pressure of patches at the surface of cylinder
+                    must be (n_sensors x 1) dimensions.
 
-        return x_mean, x_log_std
+        Returns:
+            x_mean: mean value from 1st neuron of output layer, mean value of taken action.
+            x_std: std value from 2nd neuron of output layer, std value of taken action.
 
-    @torch.jit.export
-    def _format(self, states):
-        x = states
-        if not isinstance(x, torch.Tensor):
-            x = torch.tensor(x, device=self.device, dtype=torch.float32)
-            if len(x.size()) == 1:
-                x = x.unsqueeze(0)
-        return x
+        """
+        # feed forwards to layers
+        x = F.relu(self.linear_0(x))
+        x = F.relu(self.linear_1(x))
+        return self.linear_2(x)
 
     @torch.jit.ignore
     def get_predictions(self, states, actions):
-        states, actions = self._format(states), self._format(actions)
-        mean_ac, std_ac = self.forward(states)
-        dist = torch.distributions.Normal(mean_ac, std_ac.exp())
-        logpas = dist.log_prob(actions)
-        entropies = dist.entropy()
-        return logpas, entropies
+        """
+        To compute log probability of taken action and entropy of taken action from the distribution.
 
-    @torch.jit.ignore
-    def select_greedy_action(self, states):
-        mean_ac, std_ac = self.forward(states)
-        return np.argmax(mean_ac.detach().squeeze().cpu().numpy())
+        Args:
+            states: input array, pressure array
+            actions: action array
+
+        Returns: tensors of log probability and tensor of entropy
+
+        """
+
+        # get mean and std of action for the supplied state
+        output_layer = self.forward(torch.from_numpy(states))
+        mean_ac, std_ac = output_layer[:, :, 0], output_layer[:, :, 1]
+        mean_ac = mean_ac.squeeze()
+        std_ac = std_ac.squeeze()
+        # get distribution from mean and std by feed forward
+        dist = torch.distributions.Normal(mean_ac, std_ac.exp())
+        # compute log probabilities and entropy
+        logpas = dist.log_prob(torch.from_numpy(actions))
+        entropies = dist.entropy()
+
+        return logpas, entropies
 
 
 class FCV(nn.Module):
     """
-        A standard in_dim-64-64-out_dim Feed Forward Neural Network for Critic.
-        Init and methods input : in_dim, out_dim, states
+        A standard in_dim-64-64-out_dim Feed Forward Neural Network for value model(Critic).
     """
 
-    def __init__(self, input_dim, hidden_dims=(32, 32), activation_fc=F.relu):
+    def __init__(self, input_dim, hidden_dims):
+        """
+        The output layer dimensions are 1 neuron. The neuron in output layer represents value of the state.
+
+        Args:
+            input_dim: input dimensions are equal to number of pressure sensors
+                        sensors -> p values of patches at surface of cylinder.
+            hidden_dims: 64x64
+            activation_fc: neuron activation function = relu -> torch,nn.functional.F.relu
+        """
         super(FCV, self).__init__()
-        self.activation_fc = activation_fc
+        self.linear_0 = torch.nn.Linear(input_dim, hidden_dims)
+        self.linear_1 = torch.nn.Linear(hidden_dims, hidden_dims)
+        self.linear_2 = torch.nn.Linear(hidden_dims, 1)
 
-        self.input_layer = nn.Linear(input_dim[0], hidden_dims[0])
-        self.hidden_layers = nn.ModuleList()
-        for i in range(len(hidden_dims) - 1):
-            hidden_layer = nn.Linear(hidden_dims[i], hidden_dims[i + 1])
-            self.hidden_layers.append(hidden_layer)
-        self.output_layer = nn.Linear(hidden_dims[-1], 1)
+    def forward(self, x):
+        """
+         Feed forwarding in NN net.
 
-    def _format(self, states):
-        x = states
-        if not isinstance(x, torch.Tensor):
-            x = torch.tensor(x, device=self.device, dtype=torch.float32)
-            if len(x.size()) == 1:
-                x = x.unsqueeze(0)
-        return x
+        Args:
+            x: array or tensor containing value of pressure of patches at the surface of cylinder
+                    must be (n_sensors x 1) dimensions.
 
-    def forward(self, states):
-        x = self._format(states)
-        x = self.activation_fc(self.input_layer(x))
-        for hidden_layer in self.hidden_layers:
-            x = self.activation_fc(hidden_layer(x))
-        return self.output_layer(x).squeeze()
+        Returns: Tensor of an state value(value is pi_theta)
+
+        """
+        x = F.relu(self.linear_0(x))
+        x = F.relu(self.linear_1(x))
+        return self.linear_2(x)
