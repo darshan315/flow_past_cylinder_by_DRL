@@ -57,6 +57,7 @@ Foam::agentRotatingWallVelocityFvPatchVectorField::
       policy_name_(dict.get<word>("policy")),
       policy_(torch::jit::load(policy_name_)),
       abs_omega_max_(dict.get<scalar>("absOmegaMax")),
+      log_std_max_(dict.get<scalar>("logStdMax")),
       omega_(0.0),
       omega_old_(0.0),
       control_time_(0.0),
@@ -139,22 +140,26 @@ void Foam::agentRotatingWallVelocityFvPatchVectorField::updateCoeffs()
             }
             std::vector<torch::jit::IValue> policyFeatures{features};
             torch::Tensor gauss_parameters = policy_.forward(policyFeatures).toTensor();
+            torch::Tensor mean_tensor = gauss_parameters[0][0];
+            std::cout << "log_std: " << gauss_parameters[0][1].item<double>() << "\n";
+            torch::Tensor log_std_tensor = torch::clamp(gauss_parameters[0][1], -20.0, log_std_max_);
+            std::cout << "clipped log_std: " << log_std_tensor << "\n";
             if (train_)
             {
                 // sample from Gaussian distribution during training
-                omega_ = at::normal(gauss_parameters[0][0], gauss_parameters[0][1].exp()).item<double>();
+                omega_ = at::normal(mean_tensor, log_std_tensor.exp()).item<double>();
             }
             else
             {
                 // use expected (mean) angular velocity
-                omega_ = gauss_parameters[0][0].item<double>();
+                omega_ = mean_tensor.item<double>();
             }
             // avoid update of angular velocity during p-U coupling
             update_omega_ = false;
             // save trajectory
-            scalar mean = gauss_parameters[0][0].item<double>();
-            scalar log_std = gauss_parameters[0][1].item<double>();
-            scalar var = (gauss_parameters[0][1] + gauss_parameters[0][1]).exp().item<double>();
+            scalar mean = mean_tensor.item<double>();
+            scalar log_std = log_std_tensor.item<double>();
+            scalar var = (log_std_tensor + log_std_tensor).exp().item<double>();
             scalar entropy = 0.5 + 0.5*log(2.0*M_PI) + log_std;
             scalar log_p = -((omega_ - mean) * (omega_ - mean)) / (2.0*var) - log_std - log(sqrt(2.0*M_PI));
             saveTrajectory(log_p, entropy);

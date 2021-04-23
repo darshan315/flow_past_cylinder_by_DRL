@@ -51,6 +51,7 @@ Usage
         interval        30;
         train           true;
         absOmegaMax     0.05;
+        logStdMax       2.0;
     }
     \endverbatim
 
@@ -112,6 +113,9 @@ class agentRotatingWallVelocityFvPatchVectorField
 
         //- largest allowed absolute value of angular velocity
         scalar abs_omega_max_;
+
+        //- maximum allowed logarithmic standard deviation
+        scalar log_std_max_;
 
         //- next predicted angular velocity
         scalar omega_;
