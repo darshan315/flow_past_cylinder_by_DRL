@@ -63,4 +63,4 @@ DRL_py/r_plot_results.py
 DRL_py/results_25_15.png
 DRL_py/model_cluste_policy.pt
 DRL_py/python_drl.sif
-
+*.so

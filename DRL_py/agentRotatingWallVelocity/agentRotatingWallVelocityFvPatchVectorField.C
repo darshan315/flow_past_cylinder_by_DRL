@@ -162,7 +162,7 @@ void Foam::agentRotatingWallVelocityFvPatchVectorField::updateCoeffs()
             scalar var = (log_std_tensor + log_std_tensor).exp().item<double>();
             scalar entropy = 0.5 + 0.5*log(2.0*M_PI) + log_std;
             scalar log_p = -((omega_ - mean) * (omega_ - mean)) / (2.0*var) - log_std - log(sqrt(2.0*M_PI));
-            saveTrajectory(log_p, entropy);
+            saveTrajectory(log_p, entropy, mean, log_std);
             // reset cumulative values
             theta_cumulative_ = 0.0;
             dt_theta_cumulative_ = 0.0;
@@ -203,7 +203,7 @@ void Foam::agentRotatingWallVelocityFvPatchVectorField::write(Ostream &os) const
     writeEntry("value", os);
 }
 
-void Foam::agentRotatingWallVelocityFvPatchVectorField::saveTrajectory(scalar log_p, scalar entropy) const
+void Foam::agentRotatingWallVelocityFvPatchVectorField::saveTrajectory(scalar log_p, scalar entropy, scalar mean, scalar log_std) const
 {
     std::ifstream file("trajectory.csv");
     std::fstream trajectory("trajectory.csv", std::ios::app);
@@ -212,12 +212,14 @@ void Foam::agentRotatingWallVelocityFvPatchVectorField::saveTrajectory(scalar lo
     if(!file.good())
     {
         // write header
-        trajectory << "t, omega, log_prob, entropy, theta_sum, dt_theta_sum, p(" << p.size() << ")";
+        trajectory << "t, omega, omega_mean, omega_log_std, log_prob, entropy, theta_sum, dt_theta_sum, p(" << p.size() << ")";
     }
     trajectory << std::setprecision(15)
                << "\n"
                << t << ", "
                << omega_ << ", "
+               << mean << ", "
+               << log_std << ", "
                << log_p << ", "
                << entropy << ", "
                << theta_cumulative_ << ", "
