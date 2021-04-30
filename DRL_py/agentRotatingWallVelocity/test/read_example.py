@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # read trajectory data
 ## number of cell faces forming the cylinder patch
 n_faces = 54
-names = ["t", "omega", "log_p", "entropy", "theta_sum", "dt_theta_sum"]
+names = ["t", "omega", "omega_mean", "omega_log_std", "log_p", "entropy", "theta_sum", "dt_theta_sum"]
 p_names = ["p{:d}".format(i) for i in range(n_faces)]
 
 trajectory = pd.read_csv("trajectory.csv", sep=",", names=names+p_names, header=0)

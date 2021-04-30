@@ -214,7 +214,7 @@ public:
         virtual void write(Ostream&) const;
 
         //- Save trajectory to file
-        void saveTrajectory(scalar log_p, scalar entropy) const;
+        void saveTrajectory(scalar log_p, scalar entropy, scalar mean, scalar log_std) const;
 };
 
 
