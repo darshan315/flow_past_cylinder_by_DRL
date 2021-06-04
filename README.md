@@ -10,6 +10,7 @@ https://user-images.githubusercontent.com/50383431/120820584-f8618f00-c554-11eb-
 
 ![Screenshot from 2021-06-04 17-22-25](https://user-images.githubusercontent.com/50383431/120825424-aa9b5580-c559-11eb-8e0c-9b9baddc7462.png)
 
+![inte_omegas](https://user-images.githubusercontent.com/50383431/120827221-83458800-c55b-11eb-9805-adca1c178c31.png)
 
 ## Dependencies
 - Python-libraries, Singularity, Docker, paraview(for visualisation)
