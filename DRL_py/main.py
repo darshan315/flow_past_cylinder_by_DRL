@@ -18,13 +18,13 @@ n_sensor = 54
 
 # coefficients for reward function
 r_1 = 3
-r_2 = 0.05
-r_3 = 0.01
-r_4 = 0.0005
+r_2 = 0.1
+r_3 = 0.0001
+r_4 = 0.000001
 
 # policy model and value model instances
-policy_model = FCCA(n_sensor, 128)
-value_model = FCV(n_sensor, 128)
+policy_model = FCCA(n_sensor, 64)
+value_model = FCV(n_sensor, 64)
 
 # to retrain model from checkpoint
 retrain_models = False
@@ -52,7 +52,7 @@ value_lr = 0.003
 # policy optimizer
 policy_optimizer = optim.Adam(policy_model.parameters(), policy_lr)
 # no of epochs for value model
-policy_optimization_epochs = 50
+policy_optimization_epochs = 80
 # ration for no of trajectory to take for training (1 = 100%)
 policy_sample_ratio = 1
 # clipping parameter of policy loss
@@ -60,14 +60,14 @@ policy_clip_range = 0.1
 # maximum norm tolerance of policy optimization
 policy_model_max_grad_norm = float('inf')
 # tolerance for training of policy net
-policy_stopping_kl = 5
+policy_stopping_kl = 0.2
 # factor for entropy loss
 entropy_loss_weight = 0.01
 
 # value optimizer
 value_optimizer = optim.Adam(value_model.parameters(), policy_lr)
 # no of epochs for value model
-value_optimization_epochs = 50
+value_optimization_epochs = 80
 # ration for no of trajectory to take for training (1 = 100%)
 value_sample_ratio = 1
 # clipping parameter of value model loss
@@ -75,7 +75,7 @@ value_clip_range = float('inf')
 # maximum norm tolerance of value optimization
 value_model_max_grad_norm = float('inf')
 # tolerance for trainig of value net
-value_stopping_mse = 300
+value_stopping_mse = 25
 
 # main PPO algorithm iteration
 main_ppo_iteration = 100

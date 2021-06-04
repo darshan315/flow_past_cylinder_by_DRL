@@ -17,11 +17,11 @@ class TestPolicy(torch.nn.Module):
         x = torch.nn.functional.relu(self.linear_1(x))
         return self.linear_2(x)
 
-'''
+
 scripted = torch.jit.script(TestPolicy(54, 20))
 scripted.save("policy.pt")
 policy = torch.jit.load("policy.pt")
 example = torch.ones((2, 54))
 output = policy(example)
 print(output)
-'''
+

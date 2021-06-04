@@ -16,7 +16,7 @@
 singularity shell of2006-py1.6-cpu.sif
 # now we are operating from inside the container
 source /usr/lib/openfoam/openfoam2006/etc/bashrc
-cd cd DRL_py/agentRotatingWallVelocity/
+cd DRL_py/agentRotatingWallVelocity/
 wmake
 ```
 - the test simulation expects the library file *libAgentRotatingWallVelocity.so* to be in the parent folder; if this behavior needs adaptation, change the path in *test/system/controlDict*
