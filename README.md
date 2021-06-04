@@ -3,6 +3,10 @@
 ## Overview
 Active flow control is high dimensional optimization problem. Therefore in a generic example as flow around cylinder, the deep reinforcement learning is used to achieve optimal flow control by leveraging its power of approximation in high dimensional space. In this study, the flow control is achieved by open-loop control and closed-loop control. For flow around 2D cylinder, the von kármán vortices impose fluctuating drag and lift forces. Hence, for flow control the objective is to reduce drag and fluactuation of drag and lift for the stability of a cylinder. Hence, the cylinder is rotated in order to control the flow. For open-loop control the optimal strategy is determined by parametric study, where the rotation of the rotation of the cylinder is wave function in order to counter the natural vrtex shedding. For closed-loop control, the flow control is achieved by usind deep reinforcement learning. The proximal policy optimization (PPO) algorithm is used to implement the DRL setup, where the cylinder is rotated with optimal policy network and the **pressure sensors are placed on the surface of the cylinder**. In the PPO iteration, the starting of trajectory control os considered randomly between t=0s and t=4s.
 
+![Screenshot from 2021-06-04 17-42-02](https://user-images.githubusercontent.com/50383431/120828085-65c4ee00-c55c-11eb-833d-7d7b5f7dcf2e.png)
+
+
+
 ![cd](https://user-images.githubusercontent.com/50383431/120820544-f0a1ea80-c554-11eb-8976-09f36396aef6.png)
 ![cl](https://user-images.githubusercontent.com/50383431/120820560-f3044480-c554-11eb-8ef6-1a7758e3c9f9.png)
 
