@@ -56,7 +56,7 @@ The simulations for the LHS is found in `./test_cases/run/oscillatory_parameter_
 
 Python libraries that are used in DRL can be saperately installed in virtual environment by,
 
-``` pip install -r ./DRL_py/docker/requirement.txt ```
+``` pip install -r ./DRL_py/docker/requirements.txt ```
 
 #### PPO iterations
 
@@ -75,7 +75,7 @@ To start training,
 Python libraries in cluster is installed by creating virtual environment as,
 
 ```
-module load python / 3.7 
+module load python/3.7 
 python3 -m pip install --user virtualenv 
 python3 -m virtualenv venv
 ```
@@ -89,16 +89,17 @@ deactivate
 ```
 To install the python libraries in `venv` virtual environment,
 
-``` pip install -r ./DRL_py/docker/requirement.txt ```
+``` pip install -r ./DRL_py/docker/requirements.txt ```
 
 #### PPO iterations
 
 For PPO iteration on cluster, the simulations in OpenFOAM (environmnent) are handled by `./DRL_py/env_cluster.py`. 
 
-To set the triaing on cluster, in `./DRL_py/reply_buffer.py`, change `machine` variable to `machine = 'cluster'`. see [here.](https://github.com/darshan315/flow_past_cylinder_by_DRL/blob/0ece783bc40f56bd9eaae628471d96c3856221a4/DRL_py/reply_buffer.py#L14)
+To set the training on cluster, in `./DRL_py/reply_buffer.py`, change `machine` variable to `machine = 'cluster'`. see [here.](https://github.com/darshan315/flow_past_cylinder_by_DRL/blob/0ece783bc40f56bd9eaae628471d96c3856221a4/DRL_py/reply_buffer.py#L14)
 
 To submit the training job on cluster,
 
+`$ cd DRL_py`
 `$ sbatch python_job.sh`
 
 ## Report
