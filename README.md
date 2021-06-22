@@ -23,7 +23,9 @@ https://user-images.githubusercontent.com/50383431/120820584-f8618f00-c554-11eb-
 
 For the simulation setup in OpenFOAM, the base case for the simulation may be found in `./test_cases/cylinder2D_base`. For more info see [here.](https://ml-cfd.com/2020/12/29/running-pytorch-models-in-openfoam-basic-setup-and-examples/)
 
-This base cylinder is executable with singularity image as,
+To Built the singularity image follow the instruction given [here](https://github.com/AndreWeiner/of_pytorch_docker). The singularity image file (.sif) should be in parent directory. 
+
+This base case is executable with singularity image as,
 
 ``` singuarity run of2006-py1.6-cpu.sif ./Allrun ./test_cases/cylinder2D_base/ ```
 
