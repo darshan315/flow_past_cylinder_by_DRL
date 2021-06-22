@@ -100,6 +100,7 @@ To set the training on cluster, in `./DRL_py/reply_buffer.py`, change `machine` 
 To submit the training job on cluster,
 
 `$ cd DRL_py`
+
 `$ sbatch python_job.sh`
 
 ## Report
