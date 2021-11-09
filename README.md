@@ -121,3 +121,7 @@ BibTex citation :
   url          = {https://doi.org/10.5281/zenodo.4897961}
 }
 ```
+## References
+The PPO implementation is based on chapter 12 of Miguel Morales' excellent book *Grokking Deep Reinforcement Learning*. For more information refer to [the Notebook](https://github.com/mimoralea/gdrl).
+
+For more information about the base simulation setup and the open loop control refer [Schaefer  et al.](https://link.springer.com/chapter/10.1007/978-3-322-89849-4_39), and [Tokumaru et al.](https://authors.library.caltech.edu/67622/1/Tokumaru_Dimotakis.1991.JFM.Rotary%20oscillation%20control%20of%20a%20cylinder%20wake.pdf) The robust active flow control is inspired from [Rabault et al.](https://arxiv.org/pdf/1808.07664.pdf), and [Tokarev et al.](https://www.mdpi.com/1996-1073/13/22/5920)
